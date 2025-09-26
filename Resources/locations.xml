@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This is the root element for Evony Screen Locations -->
+<EvonyClickLocations>
+    <navigation name="NavBox" xLoc="0.394" yLoc="0.872" xDest="0.648" yDest="0.897" ClickAndDrag = "false"/>
+    <navigation name="NavServer" xLoc="0.3" yLoc="0.026" xDest="0.848" yDest="0.495" ClickAndDrag = "false"/>
+    <navigation name="NavX" xLoc="0.224" yLoc="0.516" xDest="0.463" yDest="0.567" ClickAndDrag = "false"/>
+    <navigation name="NavY" xLoc="0.606" yLoc="0.519" xDest="0.85" yDest="0.564" ClickAndDrag = "false"/>
+    <navigation name="NavGo" xLoc="0.324" yLoc="0.594" xDest="0.683" yDest="0.648" ClickAndDrag = "false"/>
+</EvonyClickLocations>
