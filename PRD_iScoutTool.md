@@ -112,9 +112,9 @@ iScoutTool is a Python-based automation application designed to interface with t
 - **btnIScoutLoadTable**: Load target data from text data pasted into 'txtiScoutBoss'
 - **btnIScoutClearAll**: Clear all data in 'txtiScoutBoss' and 'tblBossList'
 - **btnIScoutGoHome**: Navigate to home coordinates
-- **btnIScoutGoEnemy**:  Navigate to enemy server.
+- **btnIScoutGoEnemy**:  Navigate to enemy server and start bubble countdown timer.
     - First time to enemy server requires selecting a different choice to move to a different server, and will drop the gamer in a randam location.
-- **lblTimer**: Display operation timing/countdown
+- **lblTimer**: Display operation timing/countdown.  Not user editable, and will run in a separate thread so not impacted by other functionality.
 
 #### 3.2.4 Data Input
 - **txtiScoutBoss**: Multi-line text input for paste operations from scout reports
@@ -125,26 +125,22 @@ iScoutTool is a Python-based automation application designed to interface with t
 - **File**: `Resources/locations.xml`
 - **Purpose**: Define reusable screen coordinates for common actions
 - **Preset Types**:
-  - Navigation elements (Back, Home buttons)
-  - Screen gestures (swipe directions)
-  - March preset selections (Preset1-8)
-  - UI element targeting
+  - Evony Navigation elements (NavBox, NavServer, NavX, NavY, NavGo)
+  - % offset coordinates of the upper left and lower right corners of the Navigation Elements
+    - these will be used to determine the center of the Navigation element as the adb click action point
 
 #### 3.3.2 Coordinate System
 - **Format**: Relative coordinates (0.0-1.0) for resolution independence
 - **Click Actions**: Single-point targeting
-- **Drag Actions**: Start and end coordinates for swipe gestures
-- **Validation**: Coordinate bounds checking
+- **Drag Actions**: Will not use drag actions in this application
+- **Validation**: Coordinate bounds checking based on Evony screen size in pixels
 
 ## 4. Data Models
 
 ### 4.1 Target Data Structure
 ```python
 class ScoutTarget:
-    target_type: str        # "Boss" or "Barbarian"
-    level: int             # Target level
-    power: str             # Power rating (e.g., "502M", "669M")
-    status: str            # "Free" or occupied status
+    target_type: str        # "Boss" or "Barbarian" actual Name, combined with Target level, Power rating, and barb status
     x_coordinate: int      # Map X position
     y_coordinate: int      # Map Y position
     completed: bool        # User marked as completed
@@ -153,12 +149,12 @@ class ScoutTarget:
 ### 4.2 Location Preset Structure
 ```python
 class LocationPreset:
-    name: str              # Preset identifier
+    name: str              # Boss/Barb identifier
     x_loc: float          # X coordinate (0.0-1.0)
     y_loc: float          # Y coordinate (0.0-1.0)
-    x_dest: float         # Destination X (for drag operations)
-    y_dest: float         # Destination Y (for drag operations)
-    click_and_drag: bool  # Action type flag
+    x_dest: float         # Destination X (0.0-1.0)
+    y_dest: float         # Destination Y (0.0-1.0)
+    click_and_drag: bool  # Action type flag, but will not be used in this application.  It is used by other apps
 ```
 
 ### 4.3 Configuration Data
@@ -170,10 +166,25 @@ class AppConfig:
     enemy_server: int    # Target server for operations
     adb_port: int        # BlueStacks connection port (5555)
 ```
+    this data will be saved/fetched from a flat file named iScoutTool.cfg, in a comma delimited format
 
 ## 5. Key Interactions and Methods
+User will manually copy and paste information from an app called iScout, to the text box named txtiScoutBoss
+The only external application this one will interact with is the Evony application running on the Android Emulator named Bluestacks 5
+For now, it will 
 
 ### 5.1 Core Application Methods
+```python
+def start_timer():
+    """Start 5 minute countdown timer"""
+
+def beep_30_secs()
+    """Begin beep sound once per second after countdown timer reaches 30 seconds, and until it reaches 0 seconds"""
+
+def update_timer()
+    """ Update lblTimer with the current countdown time, in the format MM:SS, once per second 
+
+```
 
 #### 5.1.1 Connection Management
 ```python
@@ -203,15 +214,21 @@ def validate_coordinates(x, y, server):
 ```python
 def navigate_to_coordinates(x, y, server=None):
     """Navigate to specified map coordinates in Evony"""
-    
-def execute_preset_action(preset_name):
-    """Execute predefined screen action from XML presets"""
+    #1. verify the magnifying glass icon is on the Evony screen.
+        #if not, ask user to manually navigate to server screen and exit method
+    #2. Click on the centerpoint for NavBox
+    #3. Click on the centerpoint for NavServer
+    #4. Clear the server field in Evony by sending 'select all' and 'delete' via adb to Evony
+    #5.  Send the server value passed to function, to Evony via adb
+    #6. Send <Enter>
+    #7. Repeat steps 3 - 7 using centerpoint for NavX and the passed 'x' value
+    #8. Repeat steps 3-7 using centerpoint for NavY and the passed 'y' value
+    #9. Click on the centerpoint for NavGo
     
 def perform_click(x_relative, y_relative):
     """Send click command to specific screen location"""
-    
-def perform_swipe(start_x, start_y, end_x, end_y):
-    """Execute swipe gesture for screen navigation"""
+    #1. Use adb to send a click command to Evony, to be performed at the passed coordinates  
+
 ```
 
 #### 5.1.4 Navigation Workflow
@@ -226,6 +243,7 @@ def go_to_target(target_index):
     
 def return_home():
     """Navigate back to user's home location"""
+    #1. pass coordinates (x, y, server) as obtained from (intHomeXLoc, intHomeYLoc, intHomeServer) to method navigate_to_coordinates
 ```
 
 ### 5.2 UI Event Handlers
@@ -236,13 +254,13 @@ def on_load_table_clicked():
     """Process text input and populate target table"""
     
 def on_clear_all_clicked():
-    """Clear table data and reset UI state"""
+    """Clear all rows in tblBossList, clear txtiScoutBoss, and reset UI state"""
     
 def on_go_home_clicked():
-    """Execute return to home coordinates"""
+    """Execute return to home coordinates using intHomeServer, intHomeXLoc, intHomeYLoc """
     
 def on_target_go_clicked(row_index):
-    """Navigate to specific target from table row"""
+    """Navigate to specific target from table row using intEnemyServer,  row cell from column labeled 'X', and row cell from column labeled 'Y'"""
 ```
 
 #### 5.2.2 Table Interactions
@@ -267,14 +285,16 @@ def on_table_row_selected(row):
 - **Activity Detection**: Verify correct game screen is active
 - **Input Methods**:
   - Touch events for clicks
-  - Swipe gestures for navigation
   - Text input for coordinate entry
 
 ### 6.3 Data Persistence
-- **Configuration**: Store user settings (home location, preferences)
 - **Target Lists**: Save/load target data for session continuation
+    - intHomeServer
+    - intHomeXLoc
+    - intHomeYLoc
+    - intEnemyServer
 - **Presets**: XML-based location configuration management
-
+    file name:  locations.xml in subdirectory ./Resources
 ## 7. Error Handling and Validation
 
 ### 7.1 Connection Errors
@@ -284,7 +304,10 @@ def on_table_row_selected(row):
 
 ### 7.2 Input Validation
 - Coordinate range checking (game map bounds)
+    - width 0 - 1198
+    - height 0 - 1200
 - Server number validation
+    - 0 - 9999
 - Target data format verification
 
 ### 7.3 Game State Errors
@@ -295,6 +318,7 @@ def on_table_row_selected(row):
 ## 8. Performance Requirements
 
 ### 8.1 Response Time
+- countdown timer: < 100ms response
 - UI interactions: < 100ms response
 - ADB commands: < 500ms execution
 - Navigation sequences: < 5 seconds complete
