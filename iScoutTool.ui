@@ -225,7 +225,7 @@
      <string>0</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnGoEnemyServer">
+   <widget class="QPushButton" name="btnIScoutGoEnemy">
     <property name="geometry">
      <rect>
       <x>494</x>
