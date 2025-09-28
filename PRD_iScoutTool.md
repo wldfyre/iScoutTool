@@ -26,11 +26,16 @@ iScoutTool is a Python-based automation application designed to interface with t
 - **XML**: Configuration and preset data storage
 
 ### 2.2 System Requirements
-- Windows operating system
-- BlueStacks 5 installed and configured
-- ADB debugging enabled on BlueStacks
-- Python 3.x with required dependencies
+- Windows 10/11 operating system
+- BlueStacks 5 installed and configured with ADB debugging enabled
+- Python 3.8+ with required dependencies:
+    - PyQt5 >= 5.15.0
+    - ppadb >= 3.0.0
+    - xml.etree.ElementTree (built-in)
+    - threading (built-in)
+    - configparser (built-in)
 - Network connectivity to BlueStacks on localhost:5555
+- Minimum 4GB RAM, 2GB free disk space
 
 ## 3. Functional Requirements
 
@@ -52,22 +57,25 @@ iScoutTool is a Python-based automation application designed to interface with t
 #### 3.1.3 Target Management
 - **Requirement**: Parse and manage lists of scouting targets
     - parsing will result in 3 distinct elements, that will comprise a row in the tblBossList widget
-- **Data Format**: Tab-separated text format supporting either "Artic Barbarians" or a Boss
-    Data is best parsed by working from right to left, parsing the y coordinate, x coordinate, with the rest combined to result in the "Boss/Barb" data string
+- **Data Format**: Tab-separated text format supporting either "Arctic Barbarians" or Boss entries
+    - **Parsing Logic**: Each line contains tab-separated fields. Parse from right to left:
+        1. Last field: Y-coordinate (integer)
+        2. Second-to-last field: X-coordinate (integer) 
+        3. Remaining fields (left side): Combined into Boss/Barb description string
 
-  - Artic Barbarians
-    - "Artic Barbians" with level, power, and "Free" or "Occupied" term
-        - These four elements are tab separated, but will be merged and separated by a space for each component
-        - The merged string will be placed in the "Boss/Barb" column of the row
-    - X coordinate in Evony
-        - an integer value indicating where to navigate in the x screen coordinates of Evony
-    - Y coordinate in Evony
-        - an integer value indicating where to navigate in the y screen coordinates of Evony
+  - **Arctic Barbarians Format**:
+    - Input: `Arctic Barbarians Lv5 502M \t Free \t 338 \t 249`
+    - Parsed as:
+        - Boss/Barb: "Arctic Barbarians Lv5 502M Free" (space-separated combination)
+        - X coordinate: 338
+        - Y coordinate: 249
 
-  - Boss
-        - Boss Name combined with Level
-        - an integer value indicating where to navigate in the x screen coordinates of Evony
-        - an integer value indicating where to navigate in the y screen coordinates of Evony
+  - **Boss Format**:
+    - Input: `(Boss) Kamaitachi \t Lv12 \t 440 \t 267`
+    - Parsed as:
+        - Boss/Barb: "(Boss) Kamaitachi Lv12" (space-separated combination)
+        - X coordinate: 440
+        - Y coordinate: 267
 
 
 ### 3.2 User Interface Components
@@ -111,10 +119,10 @@ iScoutTool is a Python-based automation application designed to interface with t
 #### 3.2.3 Action Controls
 - **btnIScoutLoadTable**: Load target data from text data pasted into 'txtiScoutBoss'
 - **btnIScoutClearAll**: Clear all data in 'txtiScoutBoss' and 'tblBossList'
-- **btnIScoutGoHome**: Navigate to home coordinates
-- **btnIScoutGoEnemy**:  Navigate to enemy server and start bubble countdown timer.
-    - First time to enemy server requires selecting a different choice to move to a different server, and will drop the gamer in a randam location.
-- **lblTimer**: Display operation timing/countdown.  Not user editable, and will run in a separate thread so not impacted by other functionality.
+- **btnIScoutGoHome**: Navigate to home coordinates and start 5-minute bubble countdown timer
+    - Will navigate to home server coordinates as specified in configuration
+    - Starts countdown timer for bubble protection duration
+- **lblTimer**: Display operation timing/countdown. Not user editable, runs in separate thread so not impacted by other functionality.
 
 #### 3.2.4 Data Input
 - **txtiScoutBoss**: Multi-line text input for paste operations from scout reports
@@ -131,9 +139,18 @@ iScoutTool is a Python-based automation application designed to interface with t
 
 #### 3.3.2 Coordinate System
 - **Format**: Relative coordinates (0.0-1.0) for resolution independence
-- **Click Actions**: Single-point targeting
-- **Drag Actions**: Will not use drag actions in this application
-- **Validation**: Coordinate bounds checking based on Evony screen size in pixels
+    - 0.0 = top/left edge of screen
+    - 1.0 = bottom/right edge of screen
+    - Example: (0.5, 0.5) = center of screen
+- **Conversion Process**:
+    1. Detect Evony screen dimensions via ADB (e.g., 1920x1080)
+    2. Convert relative to pixel: pixel_x = relative_x * screen_width
+    3. Send ADB click command: `input tap <pixel_x> <pixel_y>`
+- **Click Actions**: Single-point targeting only
+- **Validation**: 
+    - Relative coordinates must be 0.0-1.0
+    - Pixel coordinates must be within detected screen bounds
+    - Screen detection required before any click operations
 
 ## 4. Data Models
 
@@ -174,19 +191,65 @@ The only external application this one will interact with is the Evony applicati
 For now, it will 
 
 ### 5.1 Core Application Methods
+
+#### 5.1.1 Timer Management
 ```python
 def start_timer():
-    """Start 5 minute countdown timer"""
-
-def beep_30_secs()
-    """Begin beep sound once per second after countdown timer reaches 30 seconds, and until it reaches 0 seconds"""
-
-def update_timer()
-    """ Update lblTimer with the current countdown time, in the format MM:SS, once per second 
-
+    """Start 5 minute (300 second) countdown timer in separate thread"""
+    # Initialize timer_seconds = 300
+    # Start timer_thread with update_timer() called every 1000ms
+    # Update lblTimer display
+    
+def stop_timer():
+    """Stop and reset countdown timer"""
+    # Set timer_seconds = 0
+    # Stop timer_thread
+    # Update lblTimer to show "00:00"
+    
+def update_timer():
+    """Update lblTimer with current countdown time in MM:SS format"""
+    # Decrement timer_seconds by 1
+    # Format as MM:SS (e.g., "04:23")
+    # Update lblTimer.setText()
+    # If timer_seconds <= 30, call beep_sound()
+    # If timer_seconds <= 0, call stop_timer()
+    
+def beep_sound():
+    """Generate system beep sound once per second for final 30 seconds of countdown"""
+    # Use platform-specific beep (Windows: winsound.Beep())
+    # 1000Hz tone for 200ms duration
+    # Import required: import winsound
 ```
 
-#### 5.1.1 Connection Management
+#### 5.1.2 Configuration Management
+```python
+def load_config():
+    """Load configuration from iScoutTool.cfg file"""
+    # Read CSV format: home_server,home_x,home_y,enemy_server
+    # Example: "1234,400,500,5678"
+    # Populate intHomeServer, intHomeXLoc, intHomeYLoc, intEnemyServer
+    # Create default config if file doesn't exist
+    
+def save_config():
+    """Save current configuration to iScoutTool.cfg file"""
+    # Write CSV format with current UI field values
+    # Validate data before saving
+    
+def get_evony_screen_dimensions():
+    """Detect Evony application screen size via ADB"""
+    # Use adb shell wm size to get screen resolution
+    # Return tuple (width, height) in pixels
+    # Cache results for performance
+    
+def convert_relative_to_pixel(x_rel, y_rel):
+    """Convert relative coordinates (0.0-1.0) to pixel coordinates"""
+    # Get screen dimensions
+    # pixel_x = x_rel * screen_width
+    # pixel_y = y_rel * screen_height
+    # Return tuple (pixel_x, pixel_y)
+```
+
+#### 5.1.3 Connection Management
 ```python
 def connect_to_bluestacks():
     """Establish ADB connection to BlueStacks on port 5555"""
@@ -279,6 +342,16 @@ def on_table_row_selected(row):
 - **Device Detection**: Automatic discovery of connected devices
 - **Command Execution**: Shell commands for input simulation
 - **Screen Interaction**: Touch events via ADB input commands
+- **ADB Commands Used**:
+    - Click: `input tap <x> <y>`
+    - Text input: `input text "<string>"`
+    - Key events: `input keyevent <keycode>`
+        - KEYCODE_CTRL_LEFT: 113
+        - KEYCODE_A: 29  
+        - KEYCODE_DEL: 67
+        - KEYCODE_ENTER: 66
+    - Screen size: `wm size`
+- **Evony Package**: `com.topgamesinc.evony` (to be verified during implementation)
 
 ### 6.2 Evony Application Interface
 - **Package Name**: Target Evony application package
@@ -288,32 +361,54 @@ def on_table_row_selected(row):
   - Text input for coordinate entry
 
 ### 6.3 Data Persistence
-- **Target Lists**: Save/load target data for session continuation
-    - intHomeServer
-    - intHomeXLoc
-    - intHomeYLoc
-    - intEnemyServer
+- **Configuration File**: `iScoutTool.cfg` in application root directory
+    - Format: CSV (home_server,home_x,home_y,enemy_server)
+    - Auto-created with defaults if missing
+    - Validated on load with error handling
+- **Target Lists**: Session-based only (not persisted between runs)
 - **Presets**: XML-based location configuration management
-    file name:  locations.xml in subdirectory ./Resources
+    - File: `Resources/locations.xml`
+    - Read-only during runtime
+    - Validated XML structure on startup
+
+### 6.4 Security Considerations
+- **ADB Connection**: Local-only (127.0.0.1) to prevent remote access
+- **Input Validation**: All user inputs sanitized before ADB commands
+- **Process Isolation**: Application runs with standard user privileges
+- **Error Information**: No sensitive data exposed in error messages
+- **Configuration Protection**: Config file permissions restricted to user only
 ## 7. Error Handling and Validation
 
-### 7.1 Connection Errors
-- BlueStacks not running or accessible
-- ADB connection failures
-- Device not responding
+### 7.1 Error Codes
+- **1001**: BlueStacks not running or accessible
+- **1002**: ADB connection failed
+- **1003**: Device not responding
+- **1004**: Evony application not found/active
+- **2001**: Invalid coordinate range
+- **2002**: Invalid server number
+- **2003**: Malformed target data
+- **3001**: Navigation timeout
+- **3002**: UI element not found
+- **4001**: Configuration file error
+- **4002**: Timer initialization failed
 
 ### 7.2 Input Validation
-- Coordinate range checking (game map bounds)
-    - width 0 - 1198
-    - height 0 - 1200
-- Server number validation
-    - 0 - 9999
-- Target data format verification
+- **Coordinate range checking** (Evony map bounds):
+    - X coordinates: 1 - 1198 (integer)
+    - Y coordinates: 1 - 1200 (integer)
+- **Server number validation**:
+    - Range: 1 - 9999 (4-digit maximum)
+    - Format: Integer only
+- **Target data format verification**:
+    - Minimum 3 tab-separated fields per line
+    - Last two fields must be valid integers
+    - Boss/Barb description cannot be empty
 
 ### 7.3 Game State Errors
-- Evony application not active
-- Unexpected screen state
-- Navigation failures
+- **Connection Recovery**: 3 retry attempts with 2-second delays
+- **UI Element Detection**: Timeout after 5 seconds
+- **Navigation Validation**: Verify successful coordinate entry
+- **Logging**: All errors logged to iScoutTool.log with timestamps
 
 ## 8. Performance Requirements
 
@@ -327,6 +422,18 @@ def on_table_row_selected(row):
 - Connection stability with retry logic
 - Graceful handling of game state changes
 - Data validation and error recovery
+
+### 8.3 Logging Strategy
+- **Log File**: `iScoutTool.log` in application directory
+- **Log Levels**: ERROR, WARNING, INFO, DEBUG
+- **Log Rotation**: Maximum 10MB file size, keep 3 backup files
+- **Log Content**:
+    - Application startup/shutdown
+    - ADB connection events
+    - Navigation attempts and results
+    - Error conditions with stack traces
+    - User actions (button clicks, data loads)
+- **Privacy**: No sensitive game data logged (coordinates only)
 
 ## 9. Future Enhancements
 
@@ -343,7 +450,42 @@ def on_table_row_selected(row):
 - API for external tool integration
 - Enhanced logging and analytics
 
-## 10. Testing Strategy
+## 10. Installation and Setup
+
+### 10.1 Installation Steps
+1. **Prerequisites**:
+    - Install Python 3.8+ from python.org
+    - Install BlueStacks 5 from bluestacks.com
+    - Enable ADB debugging in BlueStacks settings
+
+2. **Application Setup**:
+    ```bash
+    # Install required Python packages
+    pip install PyQt5>=5.15.0 ppadb>=3.0.0
+    
+    # Clone or download iScoutTool application
+    # Ensure Resources/locations.xml exists
+    ```
+
+3. **BlueStacks Configuration**:
+    - Start BlueStacks 5
+    - Install Evony application
+    - Enable Advanced Settings > Android Debug Bridge (ADB)
+    - Verify ADB connection: `adb devices` should show `127.0.0.1:5555`
+
+4. **First Run Setup**:
+    - Launch iScoutTool application
+    - Configure home server coordinates in UI fields
+    - Test ADB connection with "Go Home" button
+    - Verify timer functionality
+
+### 10.2 Troubleshooting
+- **ADB Connection Issues**: Restart BlueStacks, check firewall settings
+- **Screen Detection Problems**: Verify Evony is running and visible
+- **Coordinate Accuracy**: Use screenshot tool to verify preset locations
+- **Timer Not Working**: Check system audio settings and permissions
+
+## 11. Testing Strategy
 
 ### 10.1 Unit Testing
 - Data parsing validation
