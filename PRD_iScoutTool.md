@@ -20,7 +20,8 @@ iScoutTool is a Python-based automation application designed to interface with t
 
 ### 2.1 Core Technologies
 - **Python 3.x**: Primary development language
-- **PyQt5**: GUI framework for user interface
+- **PyQt5**: GUI framework for modern user interface
+- **UI Design**: `iScoutToolModern.ui` - Modern dark theme interface with enhanced workflow
 - **ppadb (Pure Python ADB)**: Android Debug Bridge interface for BlueStacks communication
 - **BlueStacks 5**: Android emulator platform (target port 5555)
 - **XML**: Configuration and preset data storage
@@ -80,7 +81,16 @@ iScoutTool is a Python-based automation application designed to interface with t
 
 ### 3.2 User Interface Components
 
-#### 3.2.1 Main Table (tblBossList)
+**Note**: The application should use `iScoutToolModern.ui` for the modern interface design with dark theme, improved layout, and enhanced user experience.
+
+#### 3.2.1 Modern Interface Layout
+- **UI File**: Use `iScoutToolModern.ui` instead of `iScoutTool.ui`
+- **Layout Structure**: Vertical splitter with Data Input (top, compact) and Scout Targets (bottom, expanded)
+- **Theme**: Dark theme with cyan accents automatically applied via embedded stylesheet
+- **Responsive Design**: Flexible layouts that adapt to window resizing
+- **Enhanced Typography**: Improved fonts, spacing, and visual hierarchy
+
+#### 3.2.2 Main Table (tblBossList)
 - **Purpose**: Display parsed target list with interactive controls
 - **Columns**:
   - "Got It": Checkbox to mark completed targets, this box will automatically be checked when the "Go" button for the row is pressed, indicating that navigation to this server/x/y Evony coordinate has been completed
@@ -192,7 +202,21 @@ For now, it will
 
 ### 5.1 Core Application Methods
 
-#### 5.1.1 Timer Management
+#### 5.1.1 Application Initialization
+```python
+def __init__(self):
+    """Initialize main application with modern UI"""
+    # Load iScoutToolModern.ui file
+    # Call setup_modern_interface() to configure UI elements
+    # Call configure_splitter_layout() to set optimal proportions
+    # Call setup_enhanced_table() to configure table display
+    # Load configuration from iScoutTool.cfg
+    # Initialize ADB connection
+    # Set up timer thread
+    # Connect signal handlers for UI events
+```
+
+#### 5.1.2 Timer Management
 ```python
 def start_timer():
     """Start 5 minute (300 second) countdown timer in separate thread"""
@@ -221,7 +245,47 @@ def beep_sound():
     # Import required: import winsound
 ```
 
-#### 5.1.2 Configuration Management
+#### 5.1.2 Modern UI Initialization
+```python
+def setup_modern_interface():
+    """Initialize modern UI elements from iScoutToolModern.ui"""
+    # Load iScoutToolModern.ui instead of iScoutTool.ui
+    # Apply dark theme styling automatically loaded from .ui file
+    # Configure splitter proportions for optimal workflow
+    # Set up enhanced table features
+    # Initialize connection status indicators
+    
+def configure_splitter_layout():
+    """Set up optimal splitter proportions programmatically"""
+    # Set mainSplitter sizes: [180, 600] (Data Input compact, Scout Targets expanded)
+    # self.mainSplitter.setSizes([180, 600])
+    # Ensure Data Input section stays compact (max 180px)
+    # Scout Targets gets majority of space for better workflow
+    
+def setup_enhanced_table():
+    """Configure Scout Targets table for optimal display"""
+    # Set custom column widths for better readability:
+    # - Column 0 (✓): 60px for checkboxes
+    # - Column 1 (🎯 Target): 350px for target descriptions
+    # - Column 2 (➡️ Action): 100px for Go buttons
+    # - Column 3 (X): 80px for X coordinates
+    # - Column 4 (Y): 80px for Y coordinates
+    # Enable sorting and row selection
+    # Set alternating row colors for better readability
+    
+def update_connection_status(connected: bool):
+    """Update connection status indicator in UI"""
+    # Update lblConnectionStatus text and color
+    # 🟢 Connected (green) or 🔴 Disconnected (red)
+    # Also update status bar with connection details
+    
+def update_target_count(count: int):
+    """Update target counter in table toolbar"""
+    # Update lblTargetCount with current number of loaded targets
+    # Format: "Targets: {count}"
+```
+
+#### 5.1.3 Configuration Management
 ```python
 def load_config():
     """Load configuration from iScoutTool.cfg file"""
@@ -249,7 +313,7 @@ def convert_relative_to_pixel(x_rel, y_rel):
     # Return tuple (pixel_x, pixel_y)
 ```
 
-#### 5.1.3 Connection Management
+#### 5.1.4 Connection Management
 ```python
 def connect_to_bluestacks():
     """Establish ADB connection to BlueStacks on port 5555"""
@@ -261,19 +325,21 @@ def reconnect_if_needed():
     """Handle connection drops and reconnection"""
 ```
 
-#### 5.1.2 Input Processing
+#### 5.1.5 Input Processing
 ```python
 def parse_scout_text(text_input):
     """Parse tab-separated scout report into target objects"""
     
 def load_targets_to_table():
     """Populate UI table with parsed target data"""
+    # After loading, call update_target_count(len(targets))
+    # Ensure table uses modern styling from iScoutToolModern.ui
     
 def validate_coordinates(x, y, server):
     """Ensure coordinate values are within game bounds"""
 ```
 
-#### 5.1.3 Game Automation
+#### 5.1.6 Game Automation
 ```python
 def navigate_to_coordinates(x, y, server=None):
     """Navigate to specified map coordinates in Evony"""
@@ -294,7 +360,7 @@ def perform_click(x_relative, y_relative):
 
 ```
 
-#### 5.1.4 Navigation Workflow
+#### 5.1.7 Navigation Workflow
 ```python
 def go_to_target(target_index):
     """Complete navigation sequence to selected target"""
@@ -311,28 +377,58 @@ def return_home():
 
 ### 5.2 UI Event Handlers
 
-#### 5.2.1 Button Actions
+#### 5.2.1 Modern UI Event Setup
+```python
+def connect_ui_signals():
+    """Connect all UI signals for modern interface"""
+    # Connect button signals
+    # Connect table signals
+    # Connect menu action signals
+    # Connect splitter resize signals
+    # Set up keyboard shortcuts (Ctrl+V for paste, F5 for connection test)
+```
+
+#### 5.2.2 Button Actions
 ```python
 def on_load_table_clicked():
     """Process text input and populate target table"""
+    # Use modern table styling from iScoutToolModern.ui
+    # Update target counter after loading
     
 def on_clear_all_clicked():
     """Clear all rows in tblBossList, clear txtiScoutBoss, and reset UI state"""
+    # Reset target counter to 0
     
 def on_go_home_clicked():
-    """Execute return to home coordinates using intHomeServer, intHomeXLoc, intHomeYLoc """
+    """Execute return to home coordinates and start timer"""
+    # Execute return to home coordinates using intHomeServer, intHomeXLoc, intHomeYLoc
+    # Start 5-minute countdown timer
+    # Update connection status if needed
+    
+def on_go_enemy_clicked():
+    """Navigate to enemy server coordinates"""
+    # Navigate using intEnemyServer coordinates
+    # Start bubble countdown timer
     
 def on_target_go_clicked(row_index):
-    """Navigate to specific target from table row using intEnemyServer,  row cell from column labeled 'X', and row cell from column labeled 'Y'"""
+    """Navigate to specific target from table row"""
+    # Use intEnemyServer, row cell from 'X' and 'Y' columns
+    # Mark target as completed in modern UI
 ```
 
-#### 5.2.2 Table Interactions
+#### 5.2.3 Table Interactions
 ```python
 def on_got_it_checkbox_changed(row, checked):
     """Mark target as completed/incomplete"""
+    # Update modern table styling for completed rows
     
 def on_table_row_selected(row):
     """Handle target selection for actions"""
+    # Use modern selection styling from iScoutToolModern.ui
+    
+def on_menu_action_triggered(action):
+    """Handle menu actions from modern menu bar"""
+    # Save/Load Configuration, Test Connection, Screenshot, Settings, etc.
 ```
 
 ## 6. Integration Specifications
@@ -474,10 +570,11 @@ def on_table_row_selected(row):
     - Verify ADB connection: `adb devices` should show `127.0.0.1:5555`
 
 4. **First Run Setup**:
-    - Launch iScoutTool application
-    - Configure home server coordinates in UI fields
-    - Test ADB connection with "Go Home" button
-    - Verify timer functionality
+    - Launch iScoutTool application (will load iScoutToolModern.ui automatically)
+    - Modern dark theme interface will be applied
+    - Configure home server coordinates in enhanced UI fields
+    - Test ADB connection with "🏠 Go Home" button
+    - Verify timer functionality and connection status indicator
 
 ### 10.2 Troubleshooting
 - **ADB Connection Issues**: Restart BlueStacks, check firewall settings

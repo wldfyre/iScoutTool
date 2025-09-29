@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>iScoutTool - Evony Automation</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #2b2b2b;
+    color: #ffffff;
+}
+
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid #555555;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    background-color: #353535;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 8px 0 8px;
+    color: #00d4ff;
+}
+
+QPushButton {
+    background-color: #4a90e2;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: bold;
+    color: white;
+    min-height: 32px;
+}
+
+QPushButton:hover {
+    background-color: #357abd;
+}
+
+QPushButton:pressed {
+    background-color: #2968a3;
+}
+
+QPushButton#btnIScoutGoHome {
+    background-color: #28a745;
+}
+
+QPushButton#btnIScoutGoEnemy {
+    background-color: #dc3545;
+}
+
+QPushButton#btnIScoutClearAll {
+    background-color: #6c757d;
+}
+
+QTableWidget {
+    background-color: #404040;
+    alternate-background-color: #4a4a4a;
+    gridline-color: #555555;
+    border: 1px solid #666666;
+    border-radius: 4px;
+}
+
+QTableWidget::item {
+    padding: 8px;
+    border: none;
+}
+
+QTableWidget::item:selected {
+    background-color: #4a90e2;
+}
+
+QHeaderView::section {
+    background-color: #353535;
+    color: #00d4ff;
+    padding: 8px;
+    border: 1px solid #555555;
+    font-weight: bold;
+}
+
+QLineEdit {
+    background-color: #404040;
+    border: 2px solid #555555;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 12px;
+    color: white;
+}
+
+QLineEdit:focus {
+    border-color: #4a90e2;
+}
+
+QLabel#lblTimer {
+    background-color: #1a1a1a;
+    border: 3px solid #00d4ff;
+    border-radius: 12px;
+    color: #00d4ff;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+QPlainTextEdit {
+    background-color: #404040;
+    border: 2px solid #555555;
+    border-radius: 4px;
+    padding: 8px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: white;
+}
+
+QPlainTextEdit:focus {
+    border-color: #4a90e2;
+}
+
+QStatusBar {
+    background-color: #353535;
+    color: #ffffff;
+    border-top: 1px solid #555555;
+}
+
+QMenuBar {
+    background-color: #353535;
+    color: #ffffff;
+    border-bottom: 1px solid #555555;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 8px 16px;
+}
+
+QMenuBar::item:selected {
+    background-color: #4a90e2;
+    border-radius: 4px;
+}
+
+QMenu {
+    background-color: #353535;
+    color: #ffffff;
+    border: 1px solid #555555;
+}
+
+QMenu::item {
+    padding: 8px 32px;
+}
+
+QMenu::item:selected {
+    background-color: #4a90e2;
+}
+
+QLabel {
+    color: #ffffff;
+    font-weight: normal;
+}
+
+QSplitter::handle {
+    background-color: #555555;
+}
+
+QSplitter::handle:horizontal {
+    width: 3px;
+}
+
+QSplitter::handle:vertical {
+    height: 3px;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <property name="spacing">
+     <number>10</number>
+    </property>
+    <property name="leftMargin">
+     <number>15</number>
+    </property>
+    <property name="topMargin">
+     <number>15</number>
+    </property>
+    <property name="rightMargin">
+     <number>15</number>
+    </property>
+    <property name="bottomMargin">
+     <number>15</number>
+    </property>
+    <item>
+     <widget class="QGroupBox" name="controlGroup">
+      <property name="title">
+       <string>Control Panel</string>
+      </property>
+      <layout class="QHBoxLayout" name="controlLayout">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="serverGroup">
+         <property name="title">
+          <string>🌐 Server Configuration</string>
+         </property>
+         <layout class="QGridLayout" name="serverGrid">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="lblHomeServer">
+            <property name="styleSheet">
+             <string notr="true">color: #ffffff; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>Home Server:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="intHomeServer">
+            <property name="inputMask">
+             <string>9999</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="placeholderText">
+             <string>1234</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblHomeCoords">
+            <property name="styleSheet">
+             <string notr="true">color: #ffffff; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>Home X,Y:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="homeCoordLayout">
+            <item>
+             <widget class="QLineEdit" name="intHomeXLoc">
+              <property name="inputMask">
+               <string>9999</string>
+              </property>
+              <property name="text">
+               <string>0</string>
+              </property>
+              <property name="placeholderText">
+               <string>X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="intHomeYLoc">
+              <property name="inputMask">
+               <string>9999</string>
+              </property>
+              <property name="text">
+               <string>0</string>
+              </property>
+              <property name="placeholderText">
+               <string>Y</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="lblEnemyServer">
+            <property name="styleSheet">
+             <string notr="true">color: #ffffff; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>Enemy Server:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="intEnemyServer">
+            <property name="inputMask">
+             <string>9999</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="placeholderText">
+             <string>5678</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="actionGroup">
+         <property name="title">
+          <string>⚡ Quick Actions</string>
+         </property>
+         <layout class="QVBoxLayout" name="actionLayout">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="btnIScoutGoHome">
+            <property name="text">
+             <string>🏠 Go Home</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnIScoutGoEnemy">
+            <property name="text">
+             <string>⚔️ Go to Enemy</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="statusGroup">
+         <property name="title">
+          <string>⏱️ Status</string>
+         </property>
+         <layout class="QVBoxLayout" name="statusLayout">
+          <item>
+           <widget class="QLabel" name="lblTimer">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>60</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>05:00</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblConnectionStatus">
+            <property name="text">
+             <string>🔴 Disconnected</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="mainSplitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QGroupBox" name="inputGroup">
+       <property name="title">
+        <string>📝 Data Input</string>
+       </property>
+       <layout class="QVBoxLayout" name="inputLayout">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="compactInputHeader">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lblInstructions">
+            <property name="styleSheet">
+             <string notr="true">color: #cccccc; font-size: 11px;</string>
+            </property>
+            <property name="text">
+             <string>� Paste scout data below (tab-separated format) - Use Ctrl+V to paste</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="txtiScoutBoss">
+          <property name="placeholderText">
+           <string>Arctic Barbarians Lv5 502M	Free	338	249
+(Boss) Kamaitachi	Lv12	440	267
+
+Paste your scout data here...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="targetGroup">
+       <property name="title">
+        <string>🎯 Scout Targets</string>
+       </property>
+       <layout class="QVBoxLayout" name="targetLayout">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="tableToolbar">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="btnIScoutLoadTable">
+            <property name="text">
+             <string>📥 Load Targets</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnIScoutClearAll">
+            <property name="text">
+             <string>🗑️ Clear All</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="toolbarSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblTargetCount">
+            <property name="styleSheet">
+             <string notr="true">color: #00d4ff; font-weight: bold;</string>
+            </property>
+            <property name="text">
+             <string>Targets: 0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tblBossList">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="rowCount">
+           <number>0</number>
+          </property>
+          <property name="columnCount">
+           <number>5</number>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>✓</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>🎯 Target</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>➡️ Action</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>X</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Y</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="styleSheet">
+    <string notr="true">QStatusBar {
+    background-color: #353535;
+    color: #ffffff;
+    border-top: 1px solid #555555;
+}</string>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1000</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionSaveConfig"/>
+    <addaction name="actionLoadConfig"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionTestConnection"/>
+    <addaction name="actionScreenshot"/>
+    <addaction name="actionSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionUserGuide"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="actionSaveConfig">
+   <property name="text">
+    <string>&amp;Save Configuration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionLoadConfig">
+   <property name="text">
+    <string>&amp;Load Configuration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionTestConnection">
+   <property name="text">
+    <string>&amp;Test ADB Connection</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionScreenshot">
+   <property name="text">
+    <string>Take &amp;Screenshot</string>
+   </property>
+   <property name="shortcut">
+    <string>F12</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Se&amp;ttings</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+,</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>&amp;About iScoutTool</string>
+   </property>
+  </action>
+  <action name="actionUserGuide">
+   <property name="text">
+    <string>&amp;User Guide</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
