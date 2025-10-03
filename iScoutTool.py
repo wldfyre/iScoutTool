@@ -26,6 +26,19 @@ from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from ppadb.client import Client as AdbClient
 
 
+class NumericTableWidgetItem(QTableWidgetItem):
+    """Custom QTableWidgetItem that sorts numerically instead of lexicographically"""
+    def __init__(self, value):
+        super().__init__(str(value))
+        self.numeric_value = int(value) if isinstance(value, (int, str)) else 0
+    
+    def __lt__(self, other):
+        """Override less-than comparison for proper numeric sorting"""
+        if isinstance(other, NumericTableWidgetItem):
+            return self.numeric_value < other.numeric_value
+        return super().__lt__(other)
+
+
 @dataclass
 class ScoutTarget:
     """Target data structure as specified in PRD section 4.1"""
@@ -976,11 +989,13 @@ class iScoutToolApp(QMainWindow):
                 # Set row height to accommodate button with proper margins for rounded corners
                 self.tblBossList.setRowHeight(i, 32)
                 
-                # Column 3: X coordinate
-                self.tblBossList.setItem(i, 3, QTableWidgetItem(str(target.x_coordinate)))
+                # Column 3: X coordinate (numeric sorting)
+                x_item = NumericTableWidgetItem(target.x_coordinate)
+                self.tblBossList.setItem(i, 3, x_item)
                 
-                # Column 4: Y coordinate
-                self.tblBossList.setItem(i, 4, QTableWidgetItem(str(target.y_coordinate)))
+                # Column 4: Y coordinate (numeric sorting)
+                y_item = NumericTableWidgetItem(target.y_coordinate)
+                self.tblBossList.setItem(i, 4, y_item)
             
             # Update target counter with completed/total format
             self.update_target_count()
@@ -988,7 +1003,10 @@ class iScoutToolApp(QMainWindow):
             # Update Clear All button state based on targets and input text
             self.update_clear_all_button_state(len(self.targets) > 0)
             
-            print(f"Loaded {len(self.targets)} targets to table")
+            # Sort table by Target column (column 2) in ascending order
+            self.tblBossList.sortByColumn(2, QtCore.Qt.AscendingOrder)
+            
+            print(f"Loaded {len(self.targets)} targets to table (sorted by Target)")
             
         except Exception as e:
             print(f"Error loading targets to table: {e}")

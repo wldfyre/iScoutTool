@@ -16,6 +16,14 @@ iScoutTool is a Python-based automation application designed to interface with t
 - Improved efficiency in scouting operations
 - Centralized management of target lists and coordinates
 
+### 1.4 Current code base
+- Python => 1468 lines of code
+- PyQT5 .ui => 651 lines of code
+- XML => 9 lines of code
+- Product Requirements Document => 917 lines of text
+
+- Total lines to maintain project => 3045 (Sum of the above code/text lines)
+
 ## 2. Technical Architecture
 
 ### 2.1 Core Technologies
