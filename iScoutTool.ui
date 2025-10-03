@@ -59,17 +59,17 @@
     <row/>
     <column>
      <property name="text">
-      <string>Got It</string>
+      <string>Action</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Boss/Barb</string>
+      <string>✓</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Go</string>
+      <string>Target</string>
      </property>
     </column>
     <column>
@@ -134,10 +134,10 @@
    <widget class="QPushButton" name="btnIScoutClearAll">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>90</x>
       <y>0</y>
       <width>80</width>
-      <height>24</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -147,14 +147,33 @@
    <widget class="QPushButton" name="btnIScoutGoHome">
     <property name="geometry">
      <rect>
-      <x>90</x>
+      <x>0</x>
       <y>0</y>
       <width>80</width>
-      <height>24</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
      <string>Go Home</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnIScoutReset">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>40</y>
+      <width>80</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string>QPushButton { background-color: #28a745; color: white; font-weight: bold; }</string>
+    </property>
+    <property name="text">
+     <string>Reset</string>
+    </property>
+    <property name="toolTip">
+     <string>Reset timer to 05:00 and stop countdown</string>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="txtiScoutBoss">
@@ -228,14 +247,14 @@
    <widget class="QPushButton" name="btnIScoutGoEnemy">
     <property name="geometry">
      <rect>
-      <x>494</x>
-      <y>0</y>
-      <width>111</width>
-      <height>23</height>
+      <x>0</x>
+      <y>20</y>
+      <width>80</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Goto Enemy Server</string>
+     <string>Go Enemy</string>
     </property>
    </widget>
   </widget>

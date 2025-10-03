@@ -1,0 +1,4 @@
+TODO List
+
+Add a 3rd quick action button for "Reset Timer"
+Order tjhe table by the Boss field
