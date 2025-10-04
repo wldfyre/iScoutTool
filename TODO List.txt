@@ -1,6 +1,0 @@
-TODO List
-
-
-Add a check for Evony running
-Add a check for on the server screen (magnifying glass)
-
