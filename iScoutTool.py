@@ -90,7 +90,7 @@ class TimerThread(QThread):
         """Stop and reset countdown timer"""
         self.running = False
         self.timer_seconds = 0
-        self.time_updated.emit("00:00")
+        # Don't emit time_updated to avoid triggering beep or unwanted updates
         
     def run(self):
         """Timer thread main loop"""
@@ -108,7 +108,7 @@ class TimerThread(QThread):
             time.sleep(1)
             self.timer_seconds -= 1
             
-        if self.timer_seconds <= 0:
+        if self.running and self.timer_seconds <= 0:
             self.time_updated.emit("00:00")
             self.timer_finished.emit()
         self.running = False
@@ -749,15 +749,34 @@ class iScoutToolApp(QMainWindow):
         except Exception as e:
             print(f"Error starting timer: {e}")
     
-    def stop_timer(self):
+    def stop_timer(self, reset_display=True):
         """Stop and reset countdown timer as specified in PRD"""
         try:
             self.timer_thread.stop_timer()
-            self.lblTimer.setText("00:00")
+            if reset_display:
+                self.lblTimer.setText("00:00")
             print("Timer stopped")
             
         except Exception as e:
             print(f"Error stopping timer: {e}")
+    
+    def on_reset_timer_clicked(self):
+        """Reset timer to 05:00 and stop any running countdown"""
+        try:
+            # Stop the timer thread completely
+            if hasattr(self, 'timer_thread') and self.timer_thread:
+                self.timer_thread.running = False
+                self.timer_thread.timer_seconds = 0
+            
+            # Reset display to 05:00 with original styling from UI file
+            self.lblTimer.setText("05:00")
+            # Clear any custom styling to revert to UI file defaults
+            self.lblTimer.setStyleSheet("")
+            
+            print("Timer reset to 05:00")
+            
+        except Exception as e:
+            print(f"Error resetting timer: {e}")
     
     def update_timer_display(self, time_str: str):
         """Update lblTimer with current countdown time and visual warnings"""
@@ -1193,7 +1212,9 @@ class iScoutToolApp(QMainWindow):
             self.btnIScoutClearAll.clicked.connect(self.on_clear_all_clicked)
             self.btnIScoutGoHome.clicked.connect(self.on_go_home_clicked)
             
-
+            # Connect Reset Timer button if it exists
+            if hasattr(self, 'btnResetTimer'):
+                self.btnResetTimer.clicked.connect(self.on_reset_timer_clicked)
             
             # Connect Go Enemy button if it exists
             if hasattr(self, 'btnIScoutGoEnemy'):
@@ -1279,6 +1300,25 @@ class iScoutToolApp(QMainWindow):
             if self.return_home():
                 # Go Home does not start timer - only Go Enemy starts timer
                 print("Navigated home successfully.")
+                
+                # Show bubble reminder dialog with black text
+                msg_box = QMessageBox(self)
+                msg_box.setWindowTitle("Bubble Reminder")
+                msg_box.setText("Remember to Bubble!")
+                msg_box.setIcon(QMessageBox.Information)
+                
+                # Force black text color to ensure visibility (same as connection error styling)
+                msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: white;
+                    }
+                    QMessageBox QLabel {
+                        color: black;
+                        font-size: 12px;
+                        padding: 10px;
+                    }
+                """)
+                msg_box.exec_()
                 return
             
             QMessageBox.warning(self, "Navigation Failed", "Failed to navigate to home coordinates")

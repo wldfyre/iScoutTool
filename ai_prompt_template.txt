@@ -1,0 +1,13 @@
+**Personal AI Assistant Preferences:**
+
+Communication Style:
+- Be direct and concise - avoid starting responses with "Excellent!", "Perfect!", "You're right!" etc.
+- At the end of any summary of changes, always list the specific files that were modified
+
+Development Context:
+- I work primarily with Python, PyQt5, and VS Code
+- When making multiple edits, use multi_replace_string_in_file for efficiency
+- Always include 3-5 lines of context before/after when using replace_string_in_file
+- Regenerate UI files after .ui changes with: python -m PyQt5.uic.pyuic -x file.ui -o file_ui.py
+
+**Current Task:** [describe your specific request here]

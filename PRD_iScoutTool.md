@@ -17,12 +17,12 @@ iScoutTool is a Python-based automation application designed to interface with t
 - Centralized management of target lists and coordinates
 
 ### 1.4 Current code base
-- Python => 1468 lines of code
-- PyQT5 .ui => 651 lines of code
+- Python => 1480 lines of code
+- PyQT5 .ui => 762 lines of code  
 - XML => 9 lines of code
-- Product Requirements Document => 917 lines of text
+- Product Requirements Document => 961 lines of text
 
-- Total lines to maintain project => 3045 (Sum of the above code/text lines)
+- Total lines to maintain project => 3212 (Sum of the above code/text lines)
 
 ## 2. Technical Architecture
 
@@ -130,7 +130,21 @@ iScoutTool is a Python-based automation application designed to interface with t
   - Action checkmarks within the "Got It column of 'tblBossList'
 
 
-#### 3.2.2 Configuration Controls
+#### 3.2.3 Status Section
+- **Timer Display (`lblTimer`)**: Shows countdown in MM:SS format with cyan styling
+  - Displays "05:00" when not running
+  - Changes to red with flashing during final 30 seconds
+  - Plays beep sound during final 30 seconds (every second)
+  - Extended beep when timer reaches 00:00
+- **Reset Timer Button (`btnResetTimer`)**: Manual timer reset control
+  - Positioned between timer display and connection status
+  - Compact 20px height with horizontal spacing
+  - Stops running timer and resets to "05:00" with original styling
+- **Connection Status (`lblConnectionStatus`)**: ADB connection indicator
+  - 🟢 "Emulator Connected" when BlueStacks accessible
+  - 🔴 "Emulator Disconnected" when connection failed
+
+#### 3.2.4 Configuration Controls
 - **Home Location Settings for returning to home server**:
   - `intHomeServer`: Home server number (Editable, required 4-digit input)
   - `intHomeXLoc`: Home X-coordinate (Editable, required 4-digit input)
@@ -140,15 +154,23 @@ iScoutTool is a Python-based automation application designed to interface with t
     in the case of "Artic Barbarians", this will be the same as the home server
     in the case of a boss, this could either be the home server or the enemy server
 
-#### 3.2.3 Action Controls
+#### 3.2.5 Action Controls
 - **btnIScoutLoadTable**: Load target data from text data pasted into 'txtiScoutBoss'
 - **btnIScoutClearAll**: Clear all data in 'txtiScoutBoss' and 'tblBossList'
-- **btnIScoutGoHome**: Navigate to home coordinates and start 5-minute bubble countdown timer
+- **Quick Actions Layout**: Buttons positioned with Go to Enemy on top, Go Home on bottom
+- **btnIScoutGoEnemy**: Navigate to enemy server coordinates and start bubble timer
+    - **Position**: Top button in Quick Actions section
+    - Will navigate to enemy server coordinates as specified in configuration  
+    - Starts 5-minute countdown timer for bubble protection duration
+    - Primary action for scouting operations
+- **btnIScoutGoHome**: Navigate to home coordinates with bubble reminder
+    - **Position**: Bottom button in Quick Actions section  
     - Will navigate to home server coordinates as specified in configuration
-    - Starts countdown timer for bubble protection duration
-- **lblTimer**: Display operation timing/countdown. Not user editable, runs in separate thread so not impacted by other functionality.
+    - Shows "Remember to Bubble!" dialog after successful navigation
+    - Does NOT start countdown timer (only Go to Enemy starts timer)
+    - Used to return safely to home location
 
-#### 3.2.4 Data Input
+#### 3.2.6 Data Input
 - **txtiScoutBoss**: Multi-line text input for paste operations from scout reports
 
 ### 3.3 Preset Management System
@@ -460,6 +482,19 @@ def reconnect_if_needed():
     
 def show_connection_error(message):
     """Display ADB connection errors with specific troubleshooting guidance"""
+    
+def show_bubble_reminder():
+    """Display bubble protection reminder after Go Home navigation"""
+    # Create custom QMessageBox with explicit styling
+    # Title: "Bubble Reminder"
+    # Message: "Remember to Bubble!"
+    # Apply dark theme compatible styling:
+    #   - Background: white
+    #   - Text color: black  
+    #   - Font size: 12px
+    #   - Padding: 10px
+    # Prevents text visibility issues in dark theme
+    # Modal dialog blocks until user acknowledges
 ```
 
 #### 5.1.5 Input Processing
@@ -537,15 +572,25 @@ def on_clear_all_clicked():
     # Reset target counter to 0
     
 def on_go_home_clicked():
-    """Execute return to home coordinates and start timer"""
+    """Execute return to home coordinates and show bubble reminder"""
     # Execute return to home coordinates using intHomeServer, intHomeXLoc, intHomeYLoc
-    # Start 5-minute countdown timer
+    # Show "Remember to Bubble!" dialog with proper text styling
+    # Does NOT start countdown timer (only Go Enemy starts timer)
     # Update connection status if needed
     
 def on_go_enemy_clicked():
-    """Navigate to enemy server coordinates"""
-    # Navigate using intEnemyServer coordinates
-    # Start bubble countdown timer
+    """Navigate to enemy server coordinates and start timer"""
+    # Navigate using intEnemyServer coordinates  
+    # Start 5-minute bubble countdown timer (300 seconds)
+    # Only this action starts the countdown timer
+    
+def on_reset_timer_clicked():
+    """Reset countdown timer to initial state"""
+    # Stop any currently running timer thread
+    # Reset display to "05:00" with original cyan styling
+    # Clear any warning colors or flashing effects
+    # Does not play beep sound (silent reset)
+    # Restores timer to ready state without starting countdown
     
 def on_target_go_clicked(row_index):
     """Navigate to specific target from table row"""
@@ -683,6 +728,96 @@ self.tblBossList.setRowHeight(row_index, 32)  # Accommodate container
 - Fixed button heights above 20px in 30px rows
 - Symmetric container margins (causes bottom clipping)
 - Direct button placement without container widgets
+
+#### 6.5.6 Status Section Layout Requirements (CRITICAL)
+
+**Reset Timer Button Positioning**: The Reset Timer button requires precise layout configuration to prevent overlap with other Status section elements.
+
+**Layout Structure** (from top to bottom):
+```xml
+<layout class="QVBoxLayout" name="statusLayout">
+    <!-- Zero spacing and margins to maximize control -->
+    <property name="spacing">0</property>
+    <property name="topMargin">0</property>
+    <property name="leftMargin">0</property>
+    <property name="rightMargin">0</property>
+    <property name="bottomMargin">0</property>
+    
+    <!-- Timer with horizontal spacing container -->
+    <item>
+        <layout class="QHBoxLayout" name="timerContainer">
+            <property name="leftMargin">8</property>
+            <property name="rightMargin">8</property>
+            <!-- Timer label with fixed 40px height -->
+        </layout>
+    </item>
+    
+    <!-- Small spacer above Reset button -->
+    <item>
+        <spacer name="topButtonSpacer">
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>3</height>  <!-- Minimal spacing -->
+                </size>
+            </property>
+        </spacer>
+    </item>
+    
+    <!-- Reset Timer Button with horizontal spacing container -->
+    <item>
+        <layout class="QHBoxLayout" name="resetButtonContainer">
+            <property name="leftMargin">8</property>
+            <property name="rightMargin">8</property>
+            <!-- Button with fixed 20px height -->
+        </layout>
+    </item>
+    
+    <!-- Spacer below Reset button -->
+    <item>
+        <spacer name="bottomButtonSpacer">
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>10</height>  <!-- Moderate spacing -->
+                </size>
+            </property>
+        </spacer>
+    </item>
+    
+    <!-- Additional spacer before connection status -->
+    <item>
+        <spacer name="statusSpacer">
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>15</height>  <!-- Larger spacing -->
+                </size>
+            </property>
+        </spacer>
+    </item>
+    
+    <!-- Connection Status Label -->
+    <item>
+        <widget class="QLabel" name="lblConnectionStatus">
+            <!-- Connection indicator -->
+        </widget>
+    </item>
+</layout>
+```
+
+**Critical Requirements**:
+- **Status Section Minimum Height**: 140px to accommodate all elements
+- **Timer Label Height**: Fixed at 40px (both min and max)
+- **Reset Button Height**: Fixed at 20px (both min and max) 
+- **Horizontal Containers**: 8px left/right margins for visual spacing
+- **Vertical Spacers**: Carefully tuned (3px, 10px, 15px) for proper separation
+- **Zero Layout Spacing**: Prevents auto-spacing that causes overlap issues
+
+**Layout Validation**:
+- Total used height: 40px (timer) + 3px + 20px (button) + 10px + 15px + ~25px (status) = ~113px
+- Available in 140px container: 27px buffer for safe positioning
+- No element overlap or clipping in normal window sizes
 
 ### 6.6 Critical ADB Text Input Challenges and Solutions
 
