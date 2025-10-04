@@ -831,33 +831,7 @@ class iScoutToolApp(QMainWindow):
         except Exception as e:
             print(f"Error handling timer finish: {e}")
     
-    def on_reset_clicked(self):
-        """Handle Reset button click - reset timer to 05:00 and stop countdown"""
-        try:
-            print("Reset button clicked - resetting timer")
-            
-            # Stop any running timer
-            if hasattr(self, 'timer_thread') and self.timer_thread:
-                self.timer_thread.stop_timer()
-                self.timer_thread = None
-            
-            # Reset timer display to default 05:00
-            self.lblTimer.setText("05:00")
-            
-            # Reset to normal blue styling (default appearance)
-            self.lblTimer.setStyleSheet("""
-                QLabel {
-                    color: #0078D4;  /* Qt blue color matching frame theme */
-                    font-weight: bold;
-                    font-size: 24px;  /* Large size for readability */
-                }
-            """)
-            
-            print("Timer reset to default state")
-            
-        except Exception as e:
-            print(f"Error resetting timer: {e}")
-            QMessageBox.warning(self, "Reset Error", f"Error resetting timer: {e}")
+
     
     def on_data_input_text_changed(self):
         """Handle changes to Data Input text - update Clear All button state"""
@@ -1219,9 +1193,7 @@ class iScoutToolApp(QMainWindow):
             self.btnIScoutClearAll.clicked.connect(self.on_clear_all_clicked)
             self.btnIScoutGoHome.clicked.connect(self.on_go_home_clicked)
             
-            # Connect Reset button if it exists
-            if hasattr(self, 'btnIScoutReset'):
-                self.btnIScoutReset.clicked.connect(self.on_reset_clicked)
+
             
             # Connect Go Enemy button if it exists
             if hasattr(self, 'btnIScoutGoEnemy'):
