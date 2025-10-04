@@ -402,7 +402,7 @@ class iScoutToolApp(QMainWindow):
     def count_completed_targets(self) -> int:
         """Count how many targets have checkmarks"""
         try:
-            return sum(1 for target in self.targets if target.completed)
+            return len([target for target in self.targets if target.completed])
         except Exception as e:
             print(f"Error counting completed targets: {e}")
             return 0
@@ -1438,6 +1438,7 @@ class iScoutToolApp(QMainWindow):
     def test_connection(self):
         """Test ADB connection as specified in PRD"""
         try:
+# sourcery skip: no-conditionals-in-tests
             if self.connect_to_bluestacks():
                 QMessageBox.information(self, "Connection Test", "✅ Connected to BlueStacks successfully!")
             else:
