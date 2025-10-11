@@ -10,16 +10,14 @@ Version: 1.0.0
 
 import sys
 import os
-import csv
-import threading
 import time
 import winsound
 import xml.etree.ElementTree as ET
 from typing import List, Tuple, Optional
 from dataclasses import dataclass
-from PyQt5 import QtWidgets, QtCore, QtGui, uic
+from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtWidgets import (
-    QMainWindow, QApplication, QTableWidget, QTableWidgetItem, 
+    QMainWindow, QApplication, QTableWidgetItem, 
     QPushButton, QCheckBox, QMessageBox, QHeaderView
 )
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal

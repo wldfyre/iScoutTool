@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'iScoutToolModern.ui'
+# Form implementation generated from reading ui file 'C:\PythonProjects\iScoutTool\iScoutTool.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -14,314 +14,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1000, 800)
-        MainWindow.setStyleSheet("QMainWindow {\n"
-"    background-color: #2b2b2b;\n"
-"    color: #ffffff;\n"
-"}\n"
-"\n"
-"QGroupBox {\n"
-"    font-weight: bold;\n"
-"    border: 2px solid #555555;\n"
-"    border-radius: 8px;\n"
-"    margin-top: 10px;\n"
-"    padding-top: 10px;\n"
-"    background-color: #353535;\n"
-"}\n"
-"\n"
-"QGroupBox::title {\n"
-"    subcontrol-origin: margin;\n"
-"    left: 10px;\n"
-"    padding: 0 8px 0 8px;\n"
-"    color: #00d4ff;\n"
-"}\n"
-"\n"
-"QPushButton {\n"
-"    background-color: #4a90e2;\n"
-"    border: none;\n"
-"    border-radius: 6px;\n"
-"    padding: 8px 16px;\n"
-"    font-weight: bold;\n"
-"    color: white;\n"
-"    min-height: 32px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #357abd;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: #2968a3;\n"
-"}\n"
-"\n"
-"QPushButton#btnIScoutGoHome {\n"
-"    background-color: #28a745;\n"
-"}\n"
-"\n"
-"QPushButton#btnIScoutGoEnemy {\n"
-"    background-color: #dc3545;\n"
-"}\n"
-"\n"
-"QPushButton#btnIScoutClearAll {\n"
-"    background-color: #6c757d;\n"
-"}\n"
-"\n"
-"QTableWidget {\n"
-"    background-color: #404040;\n"
-"    alternate-background-color: #4a4a4a;\n"
-"    gridline-color: #555555;\n"
-"    border: 1px solid #666666;\n"
-"    border-radius: 4px;\n"
-"}\n"
-"\n"
-"QTableWidget::item {\n"
-"    padding: 8px;\n"
-"    border: none;\n"
-"}\n"
-"\n"
-"QTableWidget::item:selected {\n"
-"    background-color: #4a90e2;\n"
-"}\n"
-"\n"
-"QHeaderView::section {\n"
-"    background-color: #353535;\n"
-"    color: #00d4ff;\n"
-"    padding: 8px;\n"
-"    border: 1px solid #555555;\n"
-"    font-weight: bold;\n"
-"}\n"
-"\n"
-"QLineEdit {\n"
-"    background-color: #404040;\n"
-"    border: 2px solid #555555;\n"
-"    border-radius: 4px;\n"
-"    padding: 6px;\n"
-"    font-size: 12px;\n"
-"    color: white;\n"
-"}\n"
-"\n"
-"QLineEdit:focus {\n"
-"    border-color: #4a90e2;\n"
-"}\n"
-"\n"
-"QLabel#lblTimer {\n"
-"    background-color: #1a1a1a;\n"
-"    border: 3px solid #00d4ff;\n"
-"    border-radius: 12px;\n"
-"    color: #00d4ff;\n"
-"    font-family: \'Consolas\', \'Monaco\', monospace;\n"
-"    font-size: 24px;\n"
-"    font-weight: bold;\n"
-"}\n"
-"\n"
-"QPlainTextEdit {\n"
-"    background-color: #404040;\n"
-"    border: 2px solid #555555;\n"
-"    border-radius: 4px;\n"
-"    padding: 8px;\n"
-"    font-family: \'Consolas\', \'Monaco\', monospace;\n"
-"    color: white;\n"
-"}\n"
-"\n"
-"QPlainTextEdit:focus {\n"
-"    border-color: #4a90e2;\n"
-"}\n"
-"\n"
-"QStatusBar {\n"
-"    background-color: #353535;\n"
-"    color: #ffffff;\n"
-"    border-top: 1px solid #555555;\n"
-"}\n"
-"\n"
-"QMenuBar {\n"
-"    background-color: #353535;\n"
-"    color: #ffffff;\n"
-"    border-bottom: 1px solid #555555;\n"
-"}\n"
-"\n"
-"QMenuBar::item {\n"
-"    background-color: transparent;\n"
-"    padding: 8px 16px;\n"
-"}\n"
-"\n"
-"QMenuBar::item:selected {\n"
-"    background-color: #4a90e2;\n"
-"    border-radius: 4px;\n"
-"}\n"
-"\n"
-"QMenu {\n"
-"    background-color: #353535;\n"
-"    color: #ffffff;\n"
-"    border: 1px solid #555555;\n"
-"}\n"
-"\n"
-"QMenu::item {\n"
-"    padding: 8px 32px;\n"
-"}\n"
-"\n"
-"QMenu::item:selected {\n"
-"    background-color: #4a90e2;\n"
-"}\n"
-"\n"
-"QLabel {\n"
-"    color: #ffffff;\n"
-"    font-weight: normal;\n"
-"}\n"
-"\n"
-"QSplitter::handle {\n"
-"    background-color: #555555;\n"
-"}\n"
-"\n"
-"QSplitter::handle:horizontal {\n"
-"    width: 3px;\n"
-"}\n"
-"\n"
-"QSplitter::handle:vertical {\n"
-"    height: 3px;\n"
-"}")
+        MainWindow.resize(800, 711)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.mainLayout = QtWidgets.QVBoxLayout(self.centralwidget)
-        self.mainLayout.setContentsMargins(15, 15, 15, 15)
-        self.mainLayout.setSpacing(10)
-        self.mainLayout.setObjectName("mainLayout")
-        self.controlGroup = QtWidgets.QGroupBox(self.centralwidget)
-        self.controlGroup.setObjectName("controlGroup")
-        self.controlLayout = QtWidgets.QHBoxLayout(self.controlGroup)
-        self.controlLayout.setSpacing(15)
-        self.controlLayout.setObjectName("controlLayout")
-        self.serverGroup = QtWidgets.QGroupBox(self.controlGroup)
-        self.serverGroup.setObjectName("serverGroup")
-        self.serverGrid = QtWidgets.QGridLayout(self.serverGroup)
-        self.serverGrid.setSpacing(8)
-        self.serverGrid.setObjectName("serverGrid")
-        self.intEnemyServer = QtWidgets.QLineEdit(self.serverGroup)
-        self.intEnemyServer.setObjectName("intEnemyServer")
-        self.serverGrid.addWidget(self.intEnemyServer, 2, 1, 1, 1)
-        self.lblHomeCoords = QtWidgets.QLabel(self.serverGroup)
-        self.lblHomeCoords.setStyleSheet("color: #ffffff; font-weight: bold;")
-        self.lblHomeCoords.setObjectName("lblHomeCoords")
-        self.serverGrid.addWidget(self.lblHomeCoords, 1, 0, 1, 1)
-        self.lblHomeServer = QtWidgets.QLabel(self.serverGroup)
-        self.lblHomeServer.setStyleSheet("color: #ffffff; font-weight: bold;")
-        self.lblHomeServer.setObjectName("lblHomeServer")
-        self.serverGrid.addWidget(self.lblHomeServer, 0, 0, 1, 1)
-        self.intHomeServer = QtWidgets.QLineEdit(self.serverGroup)
-        self.intHomeServer.setObjectName("intHomeServer")
-        self.serverGrid.addWidget(self.intHomeServer, 0, 1, 1, 1)
-        self.homeCoordLayout = QtWidgets.QHBoxLayout()
-        self.homeCoordLayout.setObjectName("homeCoordLayout")
-        self.intHomeXLoc = QtWidgets.QLineEdit(self.serverGroup)
-        self.intHomeXLoc.setObjectName("intHomeXLoc")
-        self.homeCoordLayout.addWidget(self.intHomeXLoc)
-        self.intHomeYLoc = QtWidgets.QLineEdit(self.serverGroup)
-        self.intHomeYLoc.setObjectName("intHomeYLoc")
-        self.homeCoordLayout.addWidget(self.intHomeYLoc)
-        self.serverGrid.addLayout(self.homeCoordLayout, 1, 1, 1, 1)
-        self.lblEnemyServer = QtWidgets.QLabel(self.serverGroup)
-        self.lblEnemyServer.setStyleSheet("color: #ffffff; font-weight: bold;")
-        self.lblEnemyServer.setObjectName("lblEnemyServer")
-        self.serverGrid.addWidget(self.lblEnemyServer, 2, 0, 1, 1)
-        self.controlLayout.addWidget(self.serverGroup)
-        self.actionGroup = QtWidgets.QGroupBox(self.controlGroup)
-        self.actionGroup.setObjectName("actionGroup")
-        self.actionLayout = QtWidgets.QVBoxLayout(self.actionGroup)
-        self.actionLayout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
-        self.actionLayout.setContentsMargins(12, 8, 12, 8)
-        self.actionLayout.setSpacing(8)
-        self.actionLayout.setObjectName("actionLayout")
-        self.btnIScoutGoEnemy = QtWidgets.QPushButton(self.actionGroup)
-        self.btnIScoutGoEnemy.setMaximumSize(QtCore.QSize(16777215, 32))
-        self.btnIScoutGoEnemy.setObjectName("btnIScoutGoEnemy")
-        self.actionLayout.addWidget(self.btnIScoutGoEnemy)
-        self.btnIScoutGoHome = QtWidgets.QPushButton(self.actionGroup)
-        self.btnIScoutGoHome.setMaximumSize(QtCore.QSize(16777215, 32))
-        self.btnIScoutGoHome.setObjectName("btnIScoutGoHome")
-        self.actionLayout.addWidget(self.btnIScoutGoHome)
-        self.controlLayout.addWidget(self.actionGroup)
-        self.statusGroup = QtWidgets.QGroupBox(self.controlGroup)
-        self.statusGroup.setMinimumSize(QtCore.QSize(0, 140))
-        self.statusGroup.setObjectName("statusGroup")
-        self.statusLayout = QtWidgets.QVBoxLayout(self.statusGroup)
-        self.statusLayout.setContentsMargins(0, 0, 0, 0)
-        self.statusLayout.setSpacing(0)
-        self.statusLayout.setObjectName("statusLayout")
-        self.timerContainer = QtWidgets.QHBoxLayout()
-        self.timerContainer.setContentsMargins(8, -1, 8, -1)
-        self.timerContainer.setObjectName("timerContainer")
-        self.lblTimer = QtWidgets.QLabel(self.statusGroup)
-        self.lblTimer.setMinimumSize(QtCore.QSize(100, 40))
-        self.lblTimer.setMaximumSize(QtCore.QSize(16777215, 40))
-        self.lblTimer.setAlignment(QtCore.Qt.AlignCenter)
-        self.lblTimer.setObjectName("lblTimer")
-        self.timerContainer.addWidget(self.lblTimer)
-        self.statusLayout.addLayout(self.timerContainer)
-        spacerItem = QtWidgets.QSpacerItem(20, 3, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.statusLayout.addItem(spacerItem)
-        self.resetButtonContainer = QtWidgets.QHBoxLayout()
-        self.resetButtonContainer.setContentsMargins(8, -1, 8, -1)
-        self.resetButtonContainer.setObjectName("resetButtonContainer")
-        self.btnResetTimer = QtWidgets.QPushButton(self.statusGroup)
-        self.btnResetTimer.setMinimumSize(QtCore.QSize(0, 20))
-        self.btnResetTimer.setMaximumSize(QtCore.QSize(16777215, 20))
-        self.btnResetTimer.setObjectName("btnResetTimer")
-        self.resetButtonContainer.addWidget(self.btnResetTimer)
-        self.statusLayout.addLayout(self.resetButtonContainer)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.statusLayout.addItem(spacerItem1)
-        spacerItem2 = QtWidgets.QSpacerItem(20, 15, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.statusLayout.addItem(spacerItem2)
-        self.lblConnectionStatus = QtWidgets.QLabel(self.statusGroup)
-        self.lblConnectionStatus.setAlignment(QtCore.Qt.AlignCenter)
-        self.lblConnectionStatus.setObjectName("lblConnectionStatus")
-        self.statusLayout.addWidget(self.lblConnectionStatus)
-        self.controlLayout.addWidget(self.statusGroup)
-        self.mainLayout.addWidget(self.controlGroup)
-        self.mainSplitter = QtWidgets.QSplitter(self.centralwidget)
-        self.mainSplitter.setOrientation(QtCore.Qt.Vertical)
-        self.mainSplitter.setChildrenCollapsible(False)
-        self.mainSplitter.setObjectName("mainSplitter")
-        self.inputGroup = QtWidgets.QGroupBox(self.mainSplitter)
-        self.inputGroup.setObjectName("inputGroup")
-        self.inputLayout = QtWidgets.QVBoxLayout(self.inputGroup)
-        self.inputLayout.setSpacing(4)
-        self.inputLayout.setObjectName("inputLayout")
-        self.compactInputHeader = QtWidgets.QHBoxLayout()
-        self.compactInputHeader.setSpacing(10)
-        self.compactInputHeader.setObjectName("compactInputHeader")
-        self.lblInstructions = QtWidgets.QLabel(self.inputGroup)
-        self.lblInstructions.setStyleSheet("color: #cccccc; font-size: 11px;")
-        self.lblInstructions.setObjectName("lblInstructions")
-        self.compactInputHeader.addWidget(self.lblInstructions)
-        self.inputLayout.addLayout(self.compactInputHeader)
-        self.txtiScoutBoss = QtWidgets.QPlainTextEdit(self.inputGroup)
-        self.txtiScoutBoss.setObjectName("txtiScoutBoss")
-        self.inputLayout.addWidget(self.txtiScoutBoss)
-        self.targetGroup = QtWidgets.QGroupBox(self.mainSplitter)
-        self.targetGroup.setObjectName("targetGroup")
-        self.targetLayout = QtWidgets.QVBoxLayout(self.targetGroup)
-        self.targetLayout.setSpacing(6)
-        self.targetLayout.setObjectName("targetLayout")
-        self.tableToolbar = QtWidgets.QHBoxLayout()
-        self.tableToolbar.setSpacing(8)
-        self.tableToolbar.setObjectName("tableToolbar")
-        self.btnIScoutLoadTable = QtWidgets.QPushButton(self.targetGroup)
+        self.btnIScoutLoadTable = QtWidgets.QPushButton(self.centralwidget)
+        self.btnIScoutLoadTable.setGeometry(QtCore.QRect(0, 460, 171, 41))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.btnIScoutLoadTable.setFont(font)
         self.btnIScoutLoadTable.setObjectName("btnIScoutLoadTable")
-        self.tableToolbar.addWidget(self.btnIScoutLoadTable)
-        self.btnIScoutClearAll = QtWidgets.QPushButton(self.targetGroup)
-        self.btnIScoutClearAll.setObjectName("btnIScoutClearAll")
-        self.tableToolbar.addWidget(self.btnIScoutClearAll)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.tableToolbar.addItem(spacerItem3)
-        self.lblTargetCount = QtWidgets.QLabel(self.targetGroup)
-        self.lblTargetCount.setStyleSheet("color: #00d4ff; font-weight: bold;")
-        self.lblTargetCount.setObjectName("lblTargetCount")
-        self.tableToolbar.addWidget(self.lblTargetCount)
-        self.targetLayout.addLayout(self.tableToolbar)
-        self.tblBossList = QtWidgets.QTableWidget(self.targetGroup)
+        self.tblBossList = QtWidgets.QTableWidget(self.centralwidget)
+        self.tblBossList.setGeometry(QtCore.QRect(0, 30, 651, 411))
         self.tblBossList.setAlternatingRowColors(True)
-        self.tblBossList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.tblBossList.setRowCount(0)
+        self.tblBossList.setRowCount(2)
         self.tblBossList.setColumnCount(5)
         self.tblBossList.setObjectName("tblBossList")
         item = QtWidgets.QTableWidgetItem()
@@ -335,132 +42,90 @@ class Ui_MainWindow(object):
         item = QtWidgets.QTableWidgetItem()
         self.tblBossList.setHorizontalHeaderItem(4, item)
         self.tblBossList.horizontalHeader().setStretchLastSection(True)
-        self.targetLayout.addWidget(self.tblBossList)
-        self.mainLayout.addWidget(self.mainSplitter)
+        self.intHomeXLoc = QtWidgets.QLineEdit(self.centralwidget)
+        self.intHomeXLoc.setGeometry(QtCore.QRect(410, 0, 31, 24))
+        self.intHomeXLoc.setObjectName("intHomeXLoc")
+        self.lblTimer = QtWidgets.QLabel(self.centralwidget)
+        self.lblTimer.setGeometry(QtCore.QRect(270, 450, 131, 41))
+        font = QtGui.QFont()
+        font.setPointSize(24)
+        font.setBold(True)
+        font.setWeight(75)
+        self.lblTimer.setFont(font)
+        self.lblTimer.setFrameShape(QtWidgets.QFrame.Box)
+        self.lblTimer.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.lblTimer.setTextFormat(QtCore.Qt.AutoText)
+        self.lblTimer.setAlignment(QtCore.Qt.AlignCenter)
+        self.lblTimer.setObjectName("lblTimer")
+        self.btnIScoutClearAll = QtWidgets.QPushButton(self.centralwidget)
+        self.btnIScoutClearAll.setGeometry(QtCore.QRect(90, 0, 80, 20))
+        self.btnIScoutClearAll.setObjectName("btnIScoutClearAll")
+        self.btnIScoutGoHome = QtWidgets.QPushButton(self.centralwidget)
+        self.btnIScoutGoHome.setGeometry(QtCore.QRect(0, 0, 80, 20))
+        self.btnIScoutGoHome.setObjectName("btnIScoutGoHome")
+        self.btnIScoutReset = QtWidgets.QPushButton(self.centralwidget)
+        self.btnIScoutReset.setGeometry(QtCore.QRect(0, 40, 80, 20))
+        self.btnIScoutReset.setObjectName("btnIScoutReset")
+        self.txtiScoutBoss = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.txtiScoutBoss.setGeometry(QtCore.QRect(0, 510, 651, 151))
+        self.txtiScoutBoss.setObjectName("txtiScoutBoss")
+        self.label_7 = QtWidgets.QLabel(self.centralwidget)
+        self.label_7.setGeometry(QtCore.QRect(220, 0, 171, 21))
+        self.label_7.setObjectName("label_7")
+        self.intHomeServer = QtWidgets.QLineEdit(self.centralwidget)
+        self.intHomeServer.setGeometry(QtCore.QRect(370, 0, 31, 24))
+        self.intHomeServer.setObjectName("intHomeServer")
+        self.intHomeYLoc = QtWidgets.QLineEdit(self.centralwidget)
+        self.intHomeYLoc.setGeometry(QtCore.QRect(450, 0, 31, 24))
+        self.intHomeYLoc.setObjectName("intHomeYLoc")
+        self.intEnemyServer = QtWidgets.QLineEdit(self.centralwidget)
+        self.intEnemyServer.setGeometry(QtCore.QRect(610, 0, 41, 24))
+        self.intEnemyServer.setObjectName("intEnemyServer")
+        self.btnIScoutGoEnemy = QtWidgets.QPushButton(self.centralwidget)
+        self.btnIScoutGoEnemy.setGeometry(QtCore.QRect(0, 20, 80, 20))
+        self.btnIScoutGoEnemy.setObjectName("btnIScoutGoEnemy")
         MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
+        self.menubar.setObjectName("menubar")
+        self.menuiScoutTool = QtWidgets.QMenu(self.menubar)
+        self.menuiScoutTool.setObjectName("menuiScoutTool")
+        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        self.statusbar.setStyleSheet("QStatusBar {\n"
-"    background-color: #353535;\n"
-"    color: #ffffff;\n"
-"    border-top: 1px solid #555555;\n"
-"}")
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1000, 32))
-        self.menubar.setObjectName("menubar")
-        self.menuFile = QtWidgets.QMenu(self.menubar)
-        self.menuFile.setObjectName("menuFile")
-        self.menuTools = QtWidgets.QMenu(self.menubar)
-        self.menuTools.setObjectName("menuTools")
-        self.menuHelp = QtWidgets.QMenu(self.menubar)
-        self.menuHelp.setObjectName("menuHelp")
-        MainWindow.setMenuBar(self.menubar)
-        self.actionSaveConfig = QtWidgets.QAction(MainWindow)
-        self.actionSaveConfig.setObjectName("actionSaveConfig")
-        self.actionLoadConfig = QtWidgets.QAction(MainWindow)
-        self.actionLoadConfig.setObjectName("actionLoadConfig")
-        self.actionExit = QtWidgets.QAction(MainWindow)
-        self.actionExit.setObjectName("actionExit")
-        self.actionTestConnection = QtWidgets.QAction(MainWindow)
-        self.actionTestConnection.setObjectName("actionTestConnection")
-        self.actionScreenshot = QtWidgets.QAction(MainWindow)
-        self.actionScreenshot.setObjectName("actionScreenshot")
-        self.actionSettings = QtWidgets.QAction(MainWindow)
-        self.actionSettings.setObjectName("actionSettings")
-        self.actionAbout = QtWidgets.QAction(MainWindow)
-        self.actionAbout.setObjectName("actionAbout")
-        self.actionUserGuide = QtWidgets.QAction(MainWindow)
-        self.actionUserGuide.setObjectName("actionUserGuide")
-        self.menuFile.addAction(self.actionSaveConfig)
-        self.menuFile.addAction(self.actionLoadConfig)
-        self.menuFile.addSeparator()
-        self.menuFile.addAction(self.actionExit)
-        self.menuTools.addAction(self.actionTestConnection)
-        self.menuTools.addAction(self.actionScreenshot)
-        self.menuTools.addAction(self.actionSettings)
-        self.menuHelp.addAction(self.actionAbout)
-        self.menuHelp.addAction(self.actionUserGuide)
-        self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menuTools.menuAction())
-        self.menubar.addAction(self.menuHelp.menuAction())
+        self.menubar.addAction(self.menuiScoutTool.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "iScoutTool - Evony Automation"))
-        self.controlGroup.setTitle(_translate("MainWindow", "Control Panel"))
-        self.serverGroup.setTitle(_translate("MainWindow", "🌐 Server Configuration"))
-        self.intEnemyServer.setInputMask(_translate("MainWindow", "9999"))
-        self.intEnemyServer.setText(_translate("MainWindow", "0"))
-        self.intEnemyServer.setPlaceholderText(_translate("MainWindow", "5678"))
-        self.lblHomeCoords.setText(_translate("MainWindow", "Home X,Y:"))
-        self.lblHomeServer.setText(_translate("MainWindow", "Home Server:"))
-        self.intHomeServer.setInputMask(_translate("MainWindow", "9999"))
-        self.intHomeServer.setText(_translate("MainWindow", "0"))
-        self.intHomeServer.setPlaceholderText(_translate("MainWindow", "1234"))
-        self.intHomeXLoc.setInputMask(_translate("MainWindow", "9999"))
-        self.intHomeXLoc.setText(_translate("MainWindow", "0"))
-        self.intHomeXLoc.setPlaceholderText(_translate("MainWindow", "X"))
-        self.intHomeYLoc.setInputMask(_translate("MainWindow", "9999"))
-        self.intHomeYLoc.setText(_translate("MainWindow", "0"))
-        self.intHomeYLoc.setPlaceholderText(_translate("MainWindow", "Y"))
-        self.lblEnemyServer.setText(_translate("MainWindow", "Enemy Server:"))
-        self.actionGroup.setTitle(_translate("MainWindow", "⚡ Quick Actions"))
-        self.btnIScoutGoEnemy.setText(_translate("MainWindow", "⚔️ Go to Enemy"))
-        self.btnIScoutGoHome.setText(_translate("MainWindow", "🏠 Go Home"))
-        self.statusGroup.setTitle(_translate("MainWindow", "⏱️ Status"))
-        self.lblTimer.setText(_translate("MainWindow", "05:00"))
-        self.btnResetTimer.setText(_translate("MainWindow", "🔄 Reset Timer"))
-        self.lblConnectionStatus.setText(_translate("MainWindow", "🔴 Disconnected"))
-        self.inputGroup.setTitle(_translate("MainWindow", "📝 Data Input"))
-        self.lblInstructions.setText(_translate("MainWindow", "� Paste scout data below (tab-separated format) - Use Ctrl+V to paste"))
-        self.txtiScoutBoss.setPlaceholderText(_translate("MainWindow", "Arctic Barbarians Lv5 502M    Free    338    249\n"
-"(Boss) Kamaitachi    Lv12    440    267\n"
-"\n"
-"Paste your scout data here..."))
-        self.targetGroup.setTitle(_translate("MainWindow", "🎯 Scout Targets"))
-        self.btnIScoutLoadTable.setText(_translate("MainWindow", "📥 Load Targets"))
-        self.btnIScoutClearAll.setText(_translate("MainWindow", "🗑️ Clear All"))
-        self.lblTargetCount.setText(_translate("MainWindow", "Targets: 0"))
-        self.tblBossList.setSortingEnabled(True)
+        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.btnIScoutLoadTable.setText(_translate("MainWindow", "Load text to table"))
         item = self.tblBossList.horizontalHeaderItem(0)
-        item.setText(_translate("MainWindow", "➡️ Action"))
+        item.setText(_translate("MainWindow", "Action"))
         item = self.tblBossList.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "✓"))
         item = self.tblBossList.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "🎯 Target"))
+        item.setText(_translate("MainWindow", "Target"))
         item = self.tblBossList.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "X"))
         item = self.tblBossList.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Y"))
-        self.menuFile.setTitle(_translate("MainWindow", "&File"))
-        self.menuTools.setTitle(_translate("MainWindow", "&Tools"))
-        self.menuHelp.setTitle(_translate("MainWindow", "&Help"))
-        self.actionSaveConfig.setText(_translate("MainWindow", "&Save Configuration"))
-        self.actionSaveConfig.setShortcut(_translate("MainWindow", "Ctrl+S"))
-        self.actionLoadConfig.setText(_translate("MainWindow", "&Load Configuration"))
-        self.actionLoadConfig.setShortcut(_translate("MainWindow", "Ctrl+O"))
-        self.actionExit.setText(_translate("MainWindow", "E&xit"))
-        self.actionExit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
-        self.actionTestConnection.setText(_translate("MainWindow", "&Test ADB Connection"))
-        self.actionTestConnection.setShortcut(_translate("MainWindow", "F5"))
-        self.actionScreenshot.setText(_translate("MainWindow", "Take &Screenshot"))
-        self.actionScreenshot.setShortcut(_translate("MainWindow", "F12"))
-        self.actionSettings.setText(_translate("MainWindow", "Se&ttings"))
-        self.actionSettings.setShortcut(_translate("MainWindow", "Ctrl+,"))
-        self.actionAbout.setText(_translate("MainWindow", "&About iScoutTool"))
-        self.actionUserGuide.setText(_translate("MainWindow", "&User Guide"))
-        self.actionUserGuide.setShortcut(_translate("MainWindow", "F1"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+        self.intHomeXLoc.setInputMask(_translate("MainWindow", "####"))
+        self.intHomeXLoc.setText(_translate("MainWindow", "0"))
+        self.lblTimer.setText(_translate("MainWindow", "00:00"))
+        self.btnIScoutClearAll.setText(_translate("MainWindow", "Clear All"))
+        self.btnIScoutGoHome.setText(_translate("MainWindow", "Go Home"))
+        self.btnIScoutReset.setStyleSheet(_translate("MainWindow", "QPushButton { background-color: #28a745; color: white; font-weight: bold; }"))
+        self.btnIScoutReset.setText(_translate("MainWindow", "Reset"))
+        self.btnIScoutReset.setToolTip(_translate("MainWindow", "Reset timer to 05:00 and stop countdown"))
+        self.label_7.setText(_translate("MainWindow", "Home Safe Zone( Server,X,Y):"))
+        self.intHomeServer.setInputMask(_translate("MainWindow", "####"))
+        self.intHomeServer.setText(_translate("MainWindow", "0"))
+        self.intHomeYLoc.setInputMask(_translate("MainWindow", "####"))
+        self.intHomeYLoc.setText(_translate("MainWindow", "0"))
+        self.intEnemyServer.setText(_translate("MainWindow", "0"))
+        self.btnIScoutGoEnemy.setText(_translate("MainWindow", "Go Enemy"))
+        self.menuiScoutTool.setTitle(_translate("MainWindow", "iScoutTool"))
