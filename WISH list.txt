@@ -1,6 +1,8 @@
 TODO List
 
 Add a check for Evony running
-Add a check that we are on the server screen (magnifying glass)
-If not on server screen, figure out how to move there before allowing anything to function.  If necessary, display a warning message
+Add a check that we are on the server screen (do we see a magnifying glass at coords stored in the xml file)
+If not on server screen, figure out how to move there before allowing anything to function.  
+    If necessary, display a warning message.  i.e. we might be in the keep, or a popup
 
+Add a button to stop and reset the timer.  Had this before, but lost it

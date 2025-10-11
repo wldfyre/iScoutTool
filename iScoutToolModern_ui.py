@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\PythonProjects\iScoutTool\iScoutToolModern.ui'
+# Form implementation generated from reading ui file 'iScoutToolModern.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -238,6 +238,10 @@ class Ui_MainWindow(object):
         self.btnIScoutGoEnemy.setMaximumSize(QtCore.QSize(16777215, 32))
         self.btnIScoutGoEnemy.setObjectName("btnIScoutGoEnemy")
         self.actionLayout.addWidget(self.btnIScoutGoEnemy)
+        self.btnViewEnemy = QtWidgets.QPushButton(self.actionGroup)
+        self.btnViewEnemy.setMaximumSize(QtCore.QSize(16777215, 32))
+        self.btnViewEnemy.setObjectName("btnViewEnemy")
+        self.actionLayout.addWidget(self.btnViewEnemy)
         self.controlLayout.addWidget(self.actionGroup)
         self.statusGroup = QtWidgets.QGroupBox(self.controlGroup)
         self.statusGroup.setObjectName("statusGroup")
@@ -388,6 +392,7 @@ class Ui_MainWindow(object):
         self.actionGroup.setTitle(_translate("MainWindow", "⚡ Quick Actions"))
         self.btnIScoutGoHome.setText(_translate("MainWindow", "🏠 Go Home"))
         self.btnIScoutGoEnemy.setText(_translate("MainWindow", "⚔️ Go to Enemy"))
+        self.btnViewEnemy.setText(_translate("MainWindow", "👁️ View Enemy"))
         self.statusGroup.setTitle(_translate("MainWindow", "⏱️ Status"))
         self.lblTimer.setText(_translate("MainWindow", "05:00"))
         self.lblConnectionStatus.setText(_translate("MainWindow", "🔴 Disconnected"))
@@ -430,3 +435,13 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "&About iScoutTool"))
         self.actionUserGuide.setText(_translate("MainWindow", "&User Guide"))
         self.actionUserGuide.setShortcut(_translate("MainWindow", "F1"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

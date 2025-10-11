@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtWidgets import (
     QMainWindow, QApplication, QTableWidgetItem, 
-    QPushButton, QCheckBox, QMessageBox, QHeaderView
+    QPushButton, QCheckBox, QMessageBox, QHeaderView, QInputDialog
 )
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from ppadb.client import Client as AdbClient
@@ -658,18 +658,23 @@ class iScoutToolApp(QMainWindow):
         """Send click command to NavBox centerpoint as specified in PRD section 3.3.3"""
         try:
             if not self.adb_device:
-                print("No ADB device connection")
+                print("DEBUG click_navbox: No ADB device connection")
                 return False
                 
             # Execute click command
-            result = self.adb_device.shell(f"input tap {center_x} {center_y}")
+            tap_command = f"input tap {center_x} {center_y}"
+            print(f"DEBUG click_navbox: Executing ADB command: '{tap_command}'")
+            result = self.adb_device.shell(tap_command)
+            print(f"DEBUG click_navbox: ADB result: {result}")
             
             # Minimal wait for dialog - optimize for speed
+            print(f"DEBUG click_navbox: Waiting 0.4 seconds for navigation dialog to open")
             time.sleep(0.4)  # Reduced from 0.8 to 0.4 seconds
+            print(f"DEBUG click_navbox: NavBox click completed successfully")
             return True
             
         except Exception as e:
-            print(f"Error clicking NavBox: {e}")
+            print(f"DEBUG click_navbox: ERROR clicking NavBox: {e}")
             return False
     
     def click_at_pixel(self, center_x: int, center_y: int, description: str = "coordinate") -> bool:
@@ -870,7 +875,7 @@ class iScoutToolApp(QMainWindow):
                 line = line.strip()
                 if not line:
                     continue
-                    
+                
                 # Split by tabs
                 parts = line.split('\t')
                 if len(parts) < 3:
@@ -914,29 +919,45 @@ class iScoutToolApp(QMainWindow):
     
     def load_targets_to_table(self):
         """Populate UI table with parsed target data as specified in PRD"""
+
         try:
             # Get text from input field
             text_input = self.txtiScoutBoss.toPlainText()
             if not text_input.strip():
                 QMessageBox.warning(self, "No Data", "Please paste scout data first")
                 return
-            
+
             # Parse the text
             self.targets = self.parse_scout_text(text_input)
-            
-            # Clear existing table
+
+            # Disable sorting before populating
+            self.tblBossList.setSortingEnabled(False)
+
+            # Clear existing table and widgets
+            self.tblBossList.clearContents()
             self.tblBossList.setRowCount(0)
-            
+
+            # Ensure table has correct columns and headers
+            self.tblBossList.setColumnCount(5)
+            self.tblBossList.setHorizontalHeaderLabels([
+                "Action", "Got It", "Target", "X", "Y"
+            ])
+
+            # Set resize mode for X and Y columns
+            header = self.tblBossList.horizontalHeader()
+            header.setSectionResizeMode(2, QHeaderView.Stretch)  # Target column stretches
+            header.setSectionResizeMode(3, QHeaderView.Interactive)
+            header.setSectionResizeMode(4, QHeaderView.Interactive)
+
             # Populate table
             for i, target in enumerate(self.targets):
                 self.tblBossList.insertRow(i)
-                
-                # Column 0: Go button with container-based centering and adjusted positioning - FIRST for quick action
+
+                # Column 0: Go button
                 button_container = QtWidgets.QWidget()
                 button_layout = QtWidgets.QHBoxLayout(button_container)
-                button_layout.setContentsMargins(1, 2, 1, 4)  # Move button up 1px: less top margin, more bottom
+                button_layout.setContentsMargins(1, 2, 1, 4)
                 button_layout.setAlignment(QtCore.Qt.AlignCenter)
-                
                 go_button = QPushButton("➡️ Go")
                 go_button.setStyleSheet("""
                     QPushButton {
@@ -951,58 +972,56 @@ class iScoutToolApp(QMainWindow):
                         border-radius: 4px;
                     }
                 """)
-                
-                # Fix focus issue - button should activate on first click
                 go_button.setFocusPolicy(QtCore.Qt.StrongFocus)
-                go_button.setAutoDefault(False)  # Prevent default button behavior
-                
-                go_button.clicked.connect(lambda checked, row=i: self.on_target_go_clicked(row))
-                
+                go_button.setAutoDefault(False)
+                def go_button_handler(checked, btn=go_button):
+                    for row in range(self.tblBossList.rowCount()):
+                        cell_widget = self.tblBossList.cellWidget(row, 0)
+                        if cell_widget and cell_widget.findChild(QPushButton) == btn:
+                            self.on_target_go_clicked(row)
+                            break
+                go_button.clicked.connect(go_button_handler)
                 button_layout.addWidget(go_button)
-                self.tblBossList.setCellWidget(i, 0, button_container)  # Column 0: Action button FIRST
-                
-                # Column 1: Got It checkbox - SECOND for quick status update (centered)
+                self.tblBossList.setCellWidget(i, 0, button_container)
+
+                # Column 1: Got It checkbox
                 checkbox_container = QtWidgets.QWidget()
                 checkbox_layout = QtWidgets.QHBoxLayout(checkbox_container)
-                checkbox_layout.setContentsMargins(0, 0, 0, 0)  # Remove margins
-                checkbox_layout.setAlignment(QtCore.Qt.AlignCenter)  # Center the checkbox
-                
+                checkbox_layout.setContentsMargins(0, 0, 0, 0)
+                checkbox_layout.setAlignment(QtCore.Qt.AlignCenter)
                 checkbox = QCheckBox()
                 checkbox.setChecked(target.completed)
                 checkbox.stateChanged.connect(lambda state, row=i: self.on_got_it_checkbox_changed(row, state == 2))
-                
                 checkbox_layout.addWidget(checkbox)
                 self.tblBossList.setCellWidget(i, 1, checkbox_container)
-                
-                # Column 2: Boss/Barb description - THIRD for target identification
+
+                # Column 2: Target description
                 self.tblBossList.setItem(i, 2, QTableWidgetItem(target.target_type))
-                
-                # Set row height to accommodate button with proper margins for rounded corners
                 self.tblBossList.setRowHeight(i, 32)
-                
-                # Column 3: X coordinate (numeric sorting)
-                x_item = NumericTableWidgetItem(target.x_coordinate)
+
+                # Column 3: X coordinate
+                x_item = QTableWidgetItem(str(target.x_coordinate))
                 self.tblBossList.setItem(i, 3, x_item)
-                
-                # Column 4: Y coordinate (numeric sorting)
-                y_item = NumericTableWidgetItem(target.y_coordinate)
+
+                # Column 4: Y coordinate
+                y_item = QTableWidgetItem(str(target.y_coordinate))
                 self.tblBossList.setItem(i, 4, y_item)
-            
-            # Update target counter with completed/total format
+
+            # End of for loop
+            # Update target counter
             self.update_target_count()
-            
-            # Update Clear All button state based on targets and input text
+            # Update Clear All button state
             self.update_clear_all_button_state(len(self.targets) > 0)
-            
-            # Sort table by Target column (column 2) in ascending order
+
+            # Re-enable sorting and sort by Target column
+            self.tblBossList.setSortingEnabled(True)
             self.tblBossList.sortByColumn(2, QtCore.Qt.AscendingOrder)
-            
             print(f"Loaded {len(self.targets)} targets to table (sorted by Target)")
-            
+
         except Exception as e:
             print(f"Error loading targets to table: {e}")
             QMessageBox.critical(self, "Load Error", f"Error loading targets: {e}")
-    
+
     def validate_coordinates(self, x: int, y: int, server: int) -> bool:
         """Ensure coordinate values are within game bounds as specified in PRD section 7.2"""
         try:
@@ -1054,10 +1073,10 @@ class iScoutToolApp(QMainWindow):
             
             # Most reliable method: Go to end, backspace to clear, then type
             self.adb_device.shell("input keyevent 123")  # Move to end of field
-            
+            # Extra delete to ensure field is cleared
+            self.adb_device.shell("input keyevent 67")  # One extra backspace
             # Fast backspace clearing - send multiple deletes in single commands
             self.adb_device.shell("input keyevent 67 67 67 67 67")  # 5 backspaces at once
-            
             # Send text and enter
             self.adb_device.shell(f"input text '{text}'")
             self.adb_device.shell("input keyevent 66")
@@ -1068,7 +1087,7 @@ class iScoutToolApp(QMainWindow):
             print(f"Error sending text: {e}")
             return False
     
-    def navigate_to_coordinates(self, x: int, y: int, server: int = None) -> bool:
+    def navigate_to_coordinates(self, x: int, y: int, server: int = None, skip_server: bool = False) -> bool:
         """Navigate to specified map coordinates in Evony as specified in PRD section 3.3.3"""
         try:
             # Use the server parameter directly (don't override with config)
@@ -1081,22 +1100,30 @@ class iScoutToolApp(QMainWindow):
                 return False
             
             # Check connection
+            print(f"DEBUG: Checking ADB connection...")
             if not self.reconnect_if_needed():
+                print(f"DEBUG: FAILED to establish ADB connection")
                 QMessageBox.warning(self, "Connection Error", "No connection to BlueStacks")
                 return False
+            else:
+                print(f"DEBUG: ADB connection verified - device: {self.adb_device}")
             
             print(f"Navigating to Server {server}, X: {x}, Y: {y}")
             
             # Step 1: Get screen dimensions
+            print(f"DEBUG: Getting Evony screen dimensions...")
             screen_width, screen_height = self.get_evony_screen_dimensions()
+            print(f"DEBUG: Screen dimensions: {screen_width} x {screen_height}")
             if screen_width == 0 or screen_height == 0:
-                print("Could not detect screen dimensions")
+                print("DEBUG: FAILED - Could not detect screen dimensions")
                 return False
             
             # Step 2: Get NavBox coordinates and calculate centerpoint
+            print(f"DEBUG: Getting NavBox coordinates...")
             navbox_coords = self.get_navbox_coordinates()
+            print(f"DEBUG: NavBox coordinates: {navbox_coords}")
             if not navbox_coords:
-                print("Could not get NavBox coordinates")
+                print("DEBUG: FAILED - Could not get NavBox coordinates")
                 return False
             
             x_loc, y_loc, x_dest, y_dest = navbox_coords
@@ -1105,18 +1132,34 @@ class iScoutToolApp(QMainWindow):
             )
             
             # Step 3: Click NavBox to open navigation
+            print(f"DEBUG: About to click NavBox at ({center_x}, {center_y})")
             if not self.click_navbox(center_x, center_y):
+                print(f"DEBUG: FAILED to click NavBox")
                 return False
+            else:
+                print(f"DEBUG: SUCCESS clicked NavBox - navigation dialog should be open")
+                # Extra delay when skipping server to ensure dialog is ready
+                if skip_server:
+                    time.sleep(0.2)  # Additional delay when skipping server step
             
-            # Step 4: Enter server (no delays between steps)
-            if 'NavServer' in self.location_presets:
+            # Step 4: Enter server (skip if skip_server is True)
+            if not skip_server and 'NavServer' in self.location_presets:
                 preset = self.location_presets['NavServer']
                 center_x, center_y = self.calculate_click_coordinates(
                     screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest
                 )
+                server_value = str(server)
+                print(f"DEBUG NavServer: About to send server value '{server_value}' via ADB")
                 if self.click_at_pixel(center_x, center_y, "NavServer"):
-                    if not self.send_text_input(str(server)):
+                    time.sleep(0.1)  # Small delay after click before text input
+                    if not self.send_text_input(server_value):
+                        print(f"DEBUG NavServer: FAILED to send server value '{server_value}'")
                         return False
+                    else:
+                        print(f"DEBUG NavServer: SUCCESS sent server value '{server_value}'")
+                else:
+                    print(f"DEBUG NavServer: FAILED to click NavServer field")
+                    return False
             
             # Step 5: Enter X coordinate (no delays)
             if 'NavX' in self.location_presets:
@@ -1124,9 +1167,19 @@ class iScoutToolApp(QMainWindow):
                 center_x, center_y = self.calculate_click_coordinates(
                     screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest
                 )
+                x_value = str(x)
+                print(f"DEBUG NavX: About to send X coordinate '{x_value}' via ADB")
                 if self.click_at_pixel(center_x, center_y, "NavX"):
-                    if not self.send_text_input(str(x)):
+                    time.sleep(0.2)  # Increased delay after click before text input
+                    if not self.send_text_input(x_value):
+                        print(f"DEBUG NavX: FAILED to send X coordinate '{x_value}'")
                         return False
+                    else:
+                        print(f"DEBUG NavX: SUCCESS sent X coordinate '{x_value}'")
+                        time.sleep(0.1)  # Small delay after X input before Y
+                else:
+                    print(f"DEBUG NavX: FAILED to click NavX field")
+                    return False
             
             # Step 6: Enter Y coordinate (no delays)
             if 'NavY' in self.location_presets:
@@ -1134,9 +1187,18 @@ class iScoutToolApp(QMainWindow):
                 center_x, center_y = self.calculate_click_coordinates(
                     screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest
                 )
+                y_value = str(int(y))  # Ensure integer conversion, then string
+                print(f"DEBUG NavY: About to send Y coordinate '{y_value}' (original: {y}) via ADB")
                 if self.click_at_pixel(center_x, center_y, "NavY"):
-                    if not self.send_text_input(str(y)):
+                    time.sleep(0.1)  # Small delay after click before text input
+                    if not self.send_text_input(y_value):
+                        print(f"DEBUG NavY: FAILED to send Y coordinate '{y_value}'")
                         return False
+                    else:
+                        print(f"DEBUG NavY: SUCCESS sent Y coordinate '{y_value}'")
+                else:
+                    print(f"DEBUG NavY: FAILED to click NavY field")
+                    return False
             
             # Step 7: Click NavGo button and return immediately
             if 'NavGo' in self.location_presets:
@@ -1218,6 +1280,10 @@ class iScoutToolApp(QMainWindow):
             if hasattr(self, 'btnIScoutGoEnemy'):
                 self.btnIScoutGoEnemy.clicked.connect(self.on_go_enemy_clicked)
             
+            # Connect View Enemy button if it exists
+            if hasattr(self, 'btnViewEnemy'):
+                self.btnViewEnemy.clicked.connect(self.on_view_enemy_clicked)
+            
             # Connect Data Input text change signal
             if hasattr(self, 'txtiScoutBoss'):
                 self.txtiScoutBoss.textChanged.connect(self.on_data_input_text_changed)
@@ -1275,7 +1341,7 @@ class iScoutToolApp(QMainWindow):
             self.txtiScoutBoss.clear()
             
             # Reset targets list
-            self.targets.clear()
+            self.targets = []
             
             # Reset target counter
             self.update_target_count(0, 0)
@@ -1362,6 +1428,7 @@ class iScoutToolApp(QMainWindow):
             # Table columns: 0=Action (Go button), 1=Got It checkbox, 2=Target, 3=X, 4=Y
             x_item = self.tblBossList.item(row_index, 3)  # X column
             y_item = self.tblBossList.item(row_index, 4)  # Y column
+            print(f"DEBUG get: Go button row {row_index} X item: {x_item.text() if x_item else 'None'} Y item: {y_item.text() if y_item else 'None'}")
             
             if not x_item or not y_item:
                 QMessageBox.warning(self, "Missing Coordinates", "X or Y coordinates not found in table")
@@ -1388,9 +1455,9 @@ class iScoutToolApp(QMainWindow):
                 QMessageBox.warning(self, "Invalid Server", "Enemy Server must be a valid number")
                 return
             
-            # Perform navigation using coordinates from table and current server value
-            print(f"Navigating to coordinates from table: X={target_x}, Y={target_y}, Server={enemy_server} (from UI field)")
-            if self.navigate_to_coordinates(target_x, target_y, enemy_server):
+            # Perform navigation using coordinates from table (keep current server)
+            print(f"Navigating to coordinates from table: X={target_x}, Y={target_y} (keeping current server)")
+            if self.navigate_to_coordinates(target_x, target_y, enemy_server, skip_server=True):
                 print(f"Successfully navigated to target {row_index + 1} at ({target_x}, {target_y})")
             else:
                 QMessageBox.warning(self, "Navigation Failed", f"Failed to navigate to target {row_index + 1}")
@@ -1399,28 +1466,75 @@ class iScoutToolApp(QMainWindow):
             print(f"Error navigating to target: {e}")
             QMessageBox.critical(self, "Error", f"Error navigating to target: {e}")
     
-    def on_got_it_checkbox_changed(self, row: int, checked: bool):
-        """Mark target as completed/incomplete and update count display"""
+    def on_view_enemy_clicked(self):
+        """Navigate to Enemy Server at coordinates 600,600 and click NavGo"""
         try:
-            if 0 <= row < len(self.targets):
-                self.targets[row].completed = checked
-                print(f"Target {row + 1} marked as {'completed' if checked else 'incomplete'}")
-                
-                # Update target count display to reflect new completion status
-                self.update_target_count()
-            
+            # Ensure connection
+            if not self.reconnect_if_needed():
+                QMessageBox.warning(self, "Connection Error", "No connection to BlueStacks")
+                return
+
+            # Get screen dimensions
+            screen_width, screen_height = self.get_evony_screen_dimensions()
+            if screen_width == 0 or screen_height == 0:
+                QMessageBox.warning(self, "Screen Error", "Could not detect screen dimensions")
+                return
+
+            # Step 1: Click NavBox to open navigation dialog
+            navbox_coords = self.get_navbox_coordinates()
+            if not navbox_coords:
+                QMessageBox.warning(self, "NavBox Error", "Could not get NavBox coordinates")
+                return
+            x_loc, y_loc, x_dest, y_dest = navbox_coords
+            center_x, center_y = self.calculate_click_coordinates(screen_width, screen_height, x_loc, y_loc, x_dest, y_dest)
+            if not self.click_navbox(center_x, center_y):
+                QMessageBox.warning(self, "NavBox Error", "Failed to click NavBox")
+                return
+            time.sleep(0.2)
+
+            # Step 2: Enter Enemy Server in NavServer field
+            if 'NavServer' in self.location_presets:
+                preset = self.location_presets['NavServer']
+                center_x, center_y = self.calculate_click_coordinates(screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest)
+                server_value = str(self.config.enemy_server)
+                if self.click_at_pixel(center_x, center_y, "NavServer"):
+                    time.sleep(0.1)
+                    self.send_text_input(server_value)
+                else:
+                    QMessageBox.warning(self, "NavServer Error", "Failed to click NavServer field")
+                    return
+
+            # Step 3: Enter X=600 in NavX field
+            if 'NavX' in self.location_presets:
+                preset = self.location_presets['NavX']
+                center_x, center_y = self.calculate_click_coordinates(screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest)
+                if self.click_at_pixel(center_x, center_y, "NavX"):
+                    time.sleep(0.2)
+                    self.send_text_input("600")
+                else:
+                    QMessageBox.warning(self, "NavX Error", "Failed to click NavX field")
+                    return
+
+            # Step 4: Enter Y=600 in NavY field
+            if 'NavY' in self.location_presets:
+                preset = self.location_presets['NavY']
+                center_x, center_y = self.calculate_click_coordinates(screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest)
+                if self.click_at_pixel(center_x, center_y, "NavY"):
+                    time.sleep(0.1)
+                    self.send_text_input("600")
+                else:
+                    QMessageBox.warning(self, "NavY Error", "Failed to click NavY field")
+                    return
+
+            # Step 5: Click NavGo button
+            if 'NavGo' in self.location_presets:
+                preset = self.location_presets['NavGo']
+                center_x, center_y = self.calculate_click_coordinates(screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest)
+                self.click_at_pixel(center_x, center_y, "NavGo")
+            print(f"ViewEnemy: Navigated to Enemy Server {self.config.enemy_server} at 600,600")
         except Exception as e:
-            print(f"Error updating checkbox: {e}")
-    
-    def on_table_row_selected(self, row: int):
-        """Handle target selection for actions as specified in PRD"""
-        try:
-            if 0 <= row < len(self.targets):
-                target = self.targets[row]
-                print(f"Selected target: {target.target_type} at ({target.x_coordinate}, {target.y_coordinate})")
-            
-        except Exception as e:
-            print(f"Error handling row selection: {e}")
+            print(f"Error in ViewEnemy: {e}")
+            QMessageBox.critical(self, "ViewEnemy Error", f"Failed to view enemy: {e}")
     
     def paste_from_clipboard(self):
         """Paste data from clipboard to text input"""
@@ -1463,17 +1577,17 @@ class iScoutToolApp(QMainWindow):
             print(f"Error during close: {e}")
             event.accept()
 
+    def on_got_it_checkbox_changed(self, row: int, checked: bool):
+        """Update completed status for the target at the given row and refresh target count."""
+        if 0 <= row < len(self.targets):
+            self.targets[row].completed = checked
+            self.update_target_count()
 
+# Ensure entry point is at the end of the file
 if __name__ == "__main__":
-    # Create QApplication
+    import sys
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
-    
-    # Create and show main window
     window = iScoutToolApp()
     window.show()
-    
-    # Set initial focus to table to prevent focus issues
-    window.tblBossList.setFocus()
-    
-    # Run application
     sys.exit(app.exec_())
