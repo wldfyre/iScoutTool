@@ -140,6 +140,9 @@ class iScoutToolApp(QMainWindow):
                 ui_file = os.path.join(os.path.dirname(__file__), 'iScoutTool.ui')
                 
             uic.loadUi(ui_file, self)
+            # Set initial splitter sizes: inputGroup 25% shorter, targetGroup 25% taller
+            if hasattr(self, 'mainSplitter'):
+                self.mainSplitter.setSizes([110, 330])
             
             # Set window properties
             self.setWindowTitle("iScoutTool - Evony Automation v1.0.0")
@@ -330,11 +333,11 @@ class iScoutToolApp(QMainWindow):
         """Configure Scout Targets table as specified in PRD section 5.1.2"""
         try:
             # Set custom column widths for better readability (reordered for workflow)
-            self.tblBossList.setColumnWidth(0, 100)  # Action (Go button) - FIRST for quick access
-            self.tblBossList.setColumnWidth(1, 60)   # ✓ (Got It checkbox) - SECOND for status
-            self.tblBossList.setColumnWidth(2, 350)  # Target (description) - THIRD for identification
-            self.tblBossList.setColumnWidth(3, 80)   # X coordinate
-            self.tblBossList.setColumnWidth(4, 80)   # Y coordinate
+            self.tblBossList.setColumnWidth(0, 100)  # Action (Go button)
+            self.tblBossList.setColumnWidth(1, 36)   # ✓ (Got It checkbox) - reduced width
+            self.tblBossList.setColumnWidth(2, 420)  # Target (description) - wider for more text
+            self.tblBossList.setColumnWidth(3, 60)   # X coordinate - reduced width
+            self.tblBossList.setColumnWidth(4, 60)   # Y coordinate - reduced width
             
             # Fix focus issues - table should handle widget focus properly
             self.tblBossList.setFocusPolicy(QtCore.Qt.StrongFocus)
@@ -363,7 +366,7 @@ class iScoutToolApp(QMainWindow):
             
             # Set header properties
             header = self.tblBossList.horizontalHeader()
-            header.setSectionResizeMode(1, QHeaderView.Stretch)  # Target column stretches
+            header.setSectionResizeMode(2, QHeaderView.Stretch)  # Target column stretches
             
             print("Enhanced table setup completed")
             
@@ -770,14 +773,22 @@ class iScoutToolApp(QMainWindow):
             if hasattr(self, 'timer_thread') and self.timer_thread:
                 self.timer_thread.running = False
                 self.timer_thread.timer_seconds = 0
-            
+            # Stop any sound (winsound.Beep is blocking, so no async sound to stop)
             # Reset display to 05:00 with original styling from UI file
             self.lblTimer.setText("05:00")
-            # Clear any custom styling to revert to UI file defaults
-            self.lblTimer.setStyleSheet("")
-            
-            print("Timer reset to 05:00")
-            
+            # Restore teal styling from .ui file
+            self.lblTimer.setStyleSheet("""
+                QLabel#lblTimer {
+                    background-color: #1a1a1a;
+                    border: 3px solid #00d4ff;
+                    border-radius: 12px;
+                    color: #00d4ff;
+                    font-family: 'Consolas', 'Monaco', monospace;
+                    font-size: 24px;
+                    font-weight: bold;
+                }
+            """)
+            print("Timer reset to 05:00 and teal formatting restored")
         except Exception as e:
             print(f"Error resetting timer: {e}")
     
@@ -884,7 +895,7 @@ class iScoutToolApp(QMainWindow):
                 # Parse from right to left as specified in PRD
                 try:
                     y_coordinate = int(parts[-1].strip())  # Last field: Y coordinate
-                    x_coordinate = int(parts[-2].strip())  # Second-to-last: X coordinate
+                    x_coordinate = int(parts[-2].strip())  # Second-to-last: X Coordinate
                     
                     # Remaining fields (left side): Combined into Boss/Barb description
                     description_parts = parts[:-2]
@@ -948,6 +959,10 @@ class iScoutToolApp(QMainWindow):
             header.setSectionResizeMode(2, QHeaderView.Stretch)  # Target column stretches
             header.setSectionResizeMode(3, QHeaderView.Interactive)
             header.setSectionResizeMode(4, QHeaderView.Interactive)
+            self.tblBossList.setColumnWidth(1, 36)   # Got It column reduced width
+            self.tblBossList.setColumnWidth(2, 420)  # Target column wider
+            self.tblBossList.setColumnWidth(3, 60)   # X column reduced width
+            self.tblBossList.setColumnWidth(4, 60)   # Y column reduced width
 
             # Populate table
             for i, target in enumerate(self.targets):

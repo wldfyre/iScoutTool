@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>800</height>
+    <width>640</width>
+    <height>880</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -180,376 +180,452 @@ QSplitter::handle:vertical {
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="mainLayout">
-    <property name="spacing">
-     <number>10</number>
+   <widget class="QGroupBox" name="controlGroup">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>15</y>
+      <width>610</width>
+      <height>241</height>
+     </rect>
     </property>
-    <property name="leftMargin">
-     <number>15</number>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>38</height>
+     </size>
     </property>
-    <property name="topMargin">
-     <number>15</number>
+    <property name="title">
+     <string>Control Panel</string>
     </property>
-    <property name="rightMargin">
-     <number>15</number>
+    <layout class="QHBoxLayout" name="controlLayout">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <property name="topMargin">
+      <number>3</number>
+     </property>
+     <property name="bottomMargin">
+      <number>3</number>
+     </property>
+     <item>
+      <widget class="QGroupBox" name="serverGroup">
+    <property name="title">
+     <string>🌐 Server Configuration</string>
     </property>
-    <property name="bottomMargin">
-     <number>15</number>
-    </property>
-    <item>
-     <widget class="QGroupBox" name="controlGroup">
-      <property name="title">
-       <string>Control Panel</string>
-      </property>
-      <layout class="QHBoxLayout" name="controlLayout">
-       <property name="spacing">
-        <number>15</number>
-       </property>
-       <item>
-        <widget class="QGroupBox" name="serverGroup">
-         <property name="title">
-          <string>🌐 Server Configuration</string>
-         </property>
-         <layout class="QGridLayout" name="serverGrid">
-          <property name="spacing">
-           <number>8</number>
-          </property>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="intEnemyServer">
-            <property name="inputMask">
-             <string>9999</string>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-            <property name="placeholderText">
-             <string>5678</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="lblHomeCoords">
-            <property name="styleSheet">
-             <string notr="true">color: #ffffff; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>Home X,Y:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="lblHomeServer">
-            <property name="styleSheet">
-             <string notr="true">color: #ffffff; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>Home Server:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="intHomeServer">
-            <property name="inputMask">
-             <string>9999</string>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-            <property name="placeholderText">
-             <string>1234</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <layout class="QHBoxLayout" name="homeCoordLayout">
-            <item>
-             <widget class="QLineEdit" name="intHomeXLoc">
-              <property name="inputMask">
-               <string>9999</string>
-              </property>
-              <property name="text">
-               <string>0</string>
-              </property>
-              <property name="placeholderText">
-               <string>X</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="intHomeYLoc">
-              <property name="inputMask">
-               <string>9999</string>
-              </property>
-              <property name="text">
-               <string>0</string>
-              </property>
-              <property name="placeholderText">
-               <string>Y</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="lblEnemyServer">
-            <property name="styleSheet">
-             <string notr="true">color: #ffffff; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>Enemy Server:</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="actionGroup">
-         <property name="title">
-          <string>⚡ Quick Actions</string>
-         </property>
-         <layout class="QVBoxLayout" name="actionLayout">
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <property name="sizeConstraint">
-           <enum>QLayout::SetNoConstraint</enum>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QPushButton" name="btnIScoutGoHome">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>🏠 Go Home</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnIScoutGoEnemy">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>⚔️ Go to Enemy</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnViewEnemy">
-            <property name="maximumSize">
-             <size>
-              <width>16777215</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>👁️ View Enemy</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="statusGroup">
-         <property name="title">
-          <string>⏱️ Status</string>
-         </property>
-         <layout class="QVBoxLayout" name="statusLayout">
-          <item>
-           <widget class="QLabel" name="lblTimer">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>60</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>05:00</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lblConnectionStatus">
-            <property name="text">
-             <string>🔴 Disconnected</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QSplitter" name="mainSplitter">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="childrenCollapsible">
-       <bool>false</bool>
-      </property>
-      <widget class="QGroupBox" name="inputGroup">
+    <widget class="QLabel" name="lblEnemyServer">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>150</y>
+       <width>82</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #ffffff; font-weight: bold;</string>
+     </property>
+     <property name="text">
+      <string>Enemy Server:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="intHomeServer">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>20</y>
+       <width>71</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <property name="inputMask">
+      <string>9999</string>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="placeholderText">
+      <string>1234</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblHomeCoords">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>67</y>
+       <width>56</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #ffffff; font-weight: bold;</string>
+     </property>
+     <property name="text">
+      <string>Home X,Y:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="intEnemyServer">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>140</y>
+       <width>71</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="inputMask">
+      <string>9999</string>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="placeholderText">
+      <string>5678</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="lblHomeServer">
+     <property name="geometry">
+      <rect>
+       <x>11</x>
+       <y>31</y>
+       <width>77</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: #ffffff; font-weight: bold;</string>
+     </property>
+     <property name="text">
+      <string>Home Server:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="intHomeXLoc">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>71</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="inputMask">
+      <string>9999</string>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="placeholderText">
+      <string>X</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="intHomeYLoc">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>90</y>
+       <width>71</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="inputMask">
+      <string>9999</string>
+     </property>
+     <property name="text">
+      <string>0</string>
+     </property>
+     <property name="placeholderText">
+      <string>Y</string>
+     </property>
+    </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="actionGroup">
        <property name="title">
-        <string>📝 Data Input</string>
+        <string>⚡ Quick Actions</string>
        </property>
-       <layout class="QVBoxLayout" name="inputLayout">
+       <widget class="QPushButton" name="btnIScoutGoEnemy">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>150</y>
+          <width>140</width>
+          <height>48</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>⚔️ Go to Enemy</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnViewEnemy">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>90</y>
+          <width>140</width>
+          <height>48</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>👁️ View Enemy</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnIScoutGoHome">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>140</width>
+          <height>48</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>🏠 Go Home</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="statusGroup">
+       <property name="title">
+        <string>⏱️ Status</string>
+       </property>
+       <widget class="QLabel" name="lblTimer">
+        <property name="geometry">
+         <rect>
+          <x>11</x>
+          <y>31</y>
+          <width>161</width>
+          <height>60</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>05:00</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnReset">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>100</y>
+          <width>161</width>
+          <height>48</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblConnectionStatus">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>160</y>
+          <width>161</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>🔴 Disconnected</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QSplitter" name="mainSplitter">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>260</y>
+      <width>610</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <property name="childrenCollapsible">
+     <bool>false</bool>
+    </property>
+    <widget class="QGroupBox" name="inputGroup">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>90</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>📝 Data Input</string>
+     </property>
+     <layout class="QVBoxLayout" name="inputLayout">
+      <property name="spacing">
+       <number>4</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="compactInputHeader">
         <property name="spacing">
-         <number>4</number>
+         <number>15</number>
+        </property>
+        <property name="rightMargin">
+         <number>30</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" name="compactInputHeader">
-          <property name="spacing">
-           <number>10</number>
+         <widget class="QLabel" name="lblInstructions">
+          <property name="styleSheet">
+           <string notr="true">color: #cccccc; font-size: 11px;</string>
           </property>
-          <item>
-           <widget class="QLabel" name="lblInstructions">
-            <property name="styleSheet">
-             <string notr="true">color: #cccccc; font-size: 11px;</string>
-            </property>
-            <property name="text">
-             <string>� Paste scout data below (tab-separated format) - Use Ctrl+V to paste</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+          <property name="text">
+           <string>� Paste scout data below (tab-separated format) - Use Ctrl+V to paste</string>
+          </property>
+         </widget>
         </item>
-        <item>
-         <widget class="QPlainTextEdit" name="txtiScoutBoss">
-          <property name="placeholderText">
-           <string>Arctic Barbarians Lv5 502M	Free	338	249
+       </layout>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="txtiScoutBoss">
+        <property name="placeholderText">
+         <string>Arctic Barbarians Lv5 502M	Free	338	249
 (Boss) Kamaitachi	Lv12	440	267
 
 Paste your scout data here...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QGroupBox" name="targetGroup">
-       <property name="title">
-        <string>🎯 Scout Targets</string>
-       </property>
-       <layout class="QVBoxLayout" name="targetLayout">
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="targetGroup">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>320</height>
+      </size>
+     </property>
+     <property name="title">
+      <string>🎯 Scout Targets</string>
+     </property>
+     <layout class="QVBoxLayout" name="targetLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="tableToolbar">
         <property name="spacing">
-         <number>6</number>
+         <number>8</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" name="tableToolbar">
-          <property name="spacing">
-           <number>8</number>
+         <widget class="QPushButton" name="btnIScoutLoadTable">
+          <property name="text">
+           <string>📥 Load Targets</string>
           </property>
-          <item>
-           <widget class="QPushButton" name="btnIScoutLoadTable">
-            <property name="text">
-             <string>📥 Load Targets</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnIScoutClearAll">
-            <property name="text">
-             <string>🗑️ Clear All</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="toolbarSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="lblTargetCount">
-            <property name="styleSheet">
-             <string notr="true">color: #00d4ff; font-weight: bold;</string>
-            </property>
-            <property name="text">
-             <string>Targets: 0</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         </widget>
         </item>
         <item>
-         <widget class="QTableWidget" name="tblBossList">
-          <property name="alternatingRowColors">
-           <bool>true</bool>
+         <widget class="QPushButton" name="btnIScoutClearAll">
+          <property name="text">
+           <string>🗑️ Clear All</string>
           </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
+         </widget>
+        </item>
+        <item>
+         <spacer name="toolbarSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
           </property>
-          <property name="rowCount">
-           <number>0</number>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="lblTargetCount">
+          <property name="styleSheet">
+           <string notr="true">color: #00d4ff; font-weight: bold;</string>
           </property>
-          <property name="columnCount">
-           <number>5</number>
+          <property name="text">
+           <string>Targets: 0</string>
           </property>
-          <attribute name="horizontalHeaderStretchLastSection">
-           <bool>true</bool>
-          </attribute>
-          <column>
-           <property name="text">
-            <string>➡️ Action</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>✓</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>🎯 Target</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>X</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Y</string>
-           </property>
-          </column>
          </widget>
         </item>
        </layout>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="tblBossList">
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="rowCount">
+         <number>0</number>
+        </property>
+        <property name="columnCount">
+         <number>5</number>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>➡️ Action</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>✓</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>🎯 Target</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>X</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Y</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="styleSheet">
@@ -565,7 +641,7 @@ Paste your scout data here...</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>640</width>
      <height>32</height>
     </rect>
    </property>
