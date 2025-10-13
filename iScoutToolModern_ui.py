@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'iScoutToolModern.ui'
+# Form implementation generated from reading ui file 'C:\PythonProjects\iScoutTool\iScoutToolModern.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -237,9 +237,9 @@ class Ui_MainWindow(object):
         self.lblTimer.setMinimumSize(QtCore.QSize(100, 60))
         self.lblTimer.setAlignment(QtCore.Qt.AlignCenter)
         self.lblTimer.setObjectName("lblTimer")
-        self.btnReset = QtWidgets.QPushButton(self.statusGroup)
-        self.btnReset.setGeometry(QtCore.QRect(10, 100, 161, 48))
-        self.btnReset.setObjectName("btnReset")
+        self.btnResetTimer = QtWidgets.QPushButton(self.statusGroup)
+        self.btnResetTimer.setGeometry(QtCore.QRect(10, 100, 161, 48))
+        self.btnResetTimer.setObjectName("btnResetTimer")
         self.lblConnectionStatus = QtWidgets.QLabel(self.statusGroup)
         self.lblConnectionStatus.setGeometry(QtCore.QRect(10, 160, 161, 16))
         self.lblConnectionStatus.setAlignment(QtCore.Qt.AlignCenter)
@@ -385,7 +385,7 @@ class Ui_MainWindow(object):
         self.btnIScoutGoHome.setText(_translate("MainWindow", "🏠 Go Home"))
         self.statusGroup.setTitle(_translate("MainWindow", "⏱️ Status"))
         self.lblTimer.setText(_translate("MainWindow", "05:00"))
-        self.btnReset.setText(_translate("MainWindow", "Reset"))
+        self.btnResetTimer.setText(_translate("MainWindow", "Reset Timer"))
         self.lblConnectionStatus.setText(_translate("MainWindow", "🔴 Disconnected"))
         self.inputGroup.setTitle(_translate("MainWindow", "📝 Data Input"))
         self.lblInstructions.setText(_translate("MainWindow", "� Paste scout data below (tab-separated format) - Use Ctrl+V to paste"))
@@ -426,13 +426,3 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "&About iScoutTool"))
         self.actionUserGuide.setText(_translate("MainWindow", "&User Guide"))
         self.actionUserGuide.setShortcut(_translate("MainWindow", "F1"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())

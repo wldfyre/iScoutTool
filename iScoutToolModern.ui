@@ -210,145 +210,145 @@ QSplitter::handle:vertical {
      </property>
      <item>
       <widget class="QGroupBox" name="serverGroup">
-    <property name="title">
-     <string>🌐 Server Configuration</string>
-    </property>
-    <widget class="QLabel" name="lblEnemyServer">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>150</y>
-       <width>82</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: #ffffff; font-weight: bold;</string>
-     </property>
-     <property name="text">
-      <string>Enemy Server:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="intHomeServer">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>20</y>
-       <width>71</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="inputMask">
-      <string>9999</string>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-     <property name="placeholderText">
-      <string>1234</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lblHomeCoords">
-     <property name="geometry">
-      <rect>
-       <x>11</x>
-       <y>67</y>
-       <width>56</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: #ffffff; font-weight: bold;</string>
-     </property>
-     <property name="text">
-      <string>Home X,Y:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="intEnemyServer">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>140</y>
-       <width>71</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="inputMask">
-      <string>9999</string>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-     <property name="placeholderText">
-      <string>5678</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="lblHomeServer">
-     <property name="geometry">
-      <rect>
-       <x>11</x>
-       <y>31</y>
-       <width>77</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: #ffffff; font-weight: bold;</string>
-     </property>
-     <property name="text">
-      <string>Home Server:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="intHomeXLoc">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>90</y>
-       <width>71</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="inputMask">
-      <string>9999</string>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-     <property name="placeholderText">
-      <string>X</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="intHomeYLoc">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>90</y>
-       <width>71</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="inputMask">
-      <string>9999</string>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-     <property name="placeholderText">
-      <string>Y</string>
-     </property>
-    </widget>
+       <property name="title">
+        <string>🌐 Server Configuration</string>
+       </property>
+       <widget class="QLabel" name="lblEnemyServer">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>150</y>
+          <width>82</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: #ffffff; font-weight: bold;</string>
+        </property>
+        <property name="text">
+         <string>Enemy Server:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="intHomeServer">
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>20</y>
+          <width>71</width>
+          <height>32</height>
+         </rect>
+        </property>
+        <property name="inputMask">
+         <string>9999</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="placeholderText">
+         <string>1234</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblHomeCoords">
+        <property name="geometry">
+         <rect>
+          <x>11</x>
+          <y>67</y>
+          <width>56</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: #ffffff; font-weight: bold;</string>
+        </property>
+        <property name="text">
+         <string>Home X,Y:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="intEnemyServer">
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>140</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="inputMask">
+         <string>9999</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="placeholderText">
+         <string>5678</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="lblHomeServer">
+        <property name="geometry">
+         <rect>
+          <x>11</x>
+          <y>31</y>
+          <width>77</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: #ffffff; font-weight: bold;</string>
+        </property>
+        <property name="text">
+         <string>Home Server:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="intHomeXLoc">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>90</y>
+          <width>71</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="inputMask">
+         <string>9999</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="placeholderText">
+         <string>X</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="intHomeYLoc">
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>90</y>
+          <width>71</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="inputMask">
+         <string>9999</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="placeholderText">
+         <string>Y</string>
+        </property>
+       </widget>
       </widget>
      </item>
      <item>
@@ -424,7 +424,7 @@ QSplitter::handle:vertical {
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QPushButton" name="btnReset">
+       <widget class="QPushButton" name="btnResetTimer">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -434,7 +434,7 @@ QSplitter::handle:vertical {
          </rect>
         </property>
         <property name="text">
-         <string>Reset</string>
+         <string>Reset Timer</string>
         </property>
        </widget>
        <widget class="QLabel" name="lblConnectionStatus">

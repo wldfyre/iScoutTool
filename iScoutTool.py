@@ -768,29 +768,35 @@ class iScoutToolApp(QMainWindow):
     
     def on_reset_timer_clicked(self):
         """Reset timer to 05:00 and stop any running countdown"""
+        print("[DEBUG] Reset Timer button pressed")
         try:
             # Stop the timer thread completely
             if hasattr(self, 'timer_thread') and self.timer_thread:
-                self.timer_thread.running = False
-                self.timer_thread.timer_seconds = 0
-            # Stop any sound (winsound.Beep is blocking, so no async sound to stop)
-            # Reset display to 05:00 with original styling from UI file
+                print(f"[DEBUG] Before stop: running={self.timer_thread.running}, timer_seconds={self.timer_thread.timer_seconds}")
+                self.timer_thread.stop_timer()  # Use the proper stop method
+                print(f"[DEBUG] After stop: running={self.timer_thread.running}, timer_seconds={self.timer_thread.timer_seconds}")
+                self.timer_thread.timer_seconds = 300  # Reset to 5:00
+                self.timer_thread.running = False      # Ensure stopped
+                print(f"[DEBUG] After reset: running={self.timer_thread.running}, timer_seconds={self.timer_thread.timer_seconds}")
+            else:
+                print("[DEBUG] timer_thread not found or not initialized")
+            # Reset timer display to 05:00
             self.lblTimer.setText("05:00")
             # Restore teal styling from .ui file
-            self.lblTimer.setStyleSheet("""
-                QLabel#lblTimer {
-                    background-color: #1a1a1a;
-                    border: 3px solid #00d4ff;
-                    border-radius: 12px;
-                    color: #00d4ff;
-                    font-family: 'Consolas', 'Monaco', monospace;
-                    font-size: 24px;
-                    font-weight: bold;
-                }
-            """)
-            print("Timer reset to 05:00 and teal formatting restored")
+            self.lblTimer.setStyleSheet(
+                "QLabel#lblTimer {"
+                "background-color: #1a1a1a;"
+                "border: 3px solid #00d4ff;"
+                "border-radius: 12px;"
+                "color: #00d4ff;"
+                "font-family: 'Consolas', 'Monaco', monospace;"
+                "font-size: 24px;"
+                "font-weight: bold;"
+                "}"
+            )
+            print("[DEBUG] Timer reset to 05:00 and teal formatting restored")
         except Exception as e:
-            print(f"Error resetting timer: {e}")
+            print(f"[DEBUG] Error resetting timer: {e}")
     
     def update_timer_display(self, time_str: str):
         """Update lblTimer with current countdown time and visual warnings"""
