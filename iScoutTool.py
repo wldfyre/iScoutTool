@@ -1399,7 +1399,8 @@ class iScoutToolApp(QMainWindow):
                     }
                     QMessageBox QLabel {
                         color: black;
-                        font-size: 12px;
+                        font-size: 36px;
+                        font-weight: bold;
                         padding: 10px;
                     }
                 """)
@@ -1425,7 +1426,7 @@ class iScoutToolApp(QMainWindow):
                 return
             
             # Use middle of map as default coordinates
-            if self.navigate_to_coordinates(600, 600, enemy_server):
+            if self.navigate_to_coordinates(598, 600, enemy_server):
                 self.start_timer(300)  # Start bubble timer (only Go Enemy starts timer)
                 print("Navigated to enemy server. Timer started.")
                 return
