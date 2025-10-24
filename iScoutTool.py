@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QPushButton, QCheckBox, QMessageBox, QHeaderView, QInputDialog
 )
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from PyQt5.QtGui import QPainter, QColor, QFont
 from ppadb.client import Client as AdbClient
 
 
@@ -134,11 +135,8 @@ class iScoutToolApp(QMainWindow):
     def setup_application(self):
         """Initialize main application as specified in PRD section 5.1.1"""
         try:
-            # Load iScoutTool.ui file (fallback to existing UI file)
+            # Always load iScoutToolModern.ui for the UI
             ui_file = os.path.join(os.path.dirname(__file__), 'iScoutToolModern.ui')
-            if not os.path.exists(ui_file):
-                ui_file = os.path.join(os.path.dirname(__file__), 'iScoutTool.ui')
-                
             uic.loadUi(ui_file, self)
             # Set initial splitter sizes: inputGroup 25% shorter, targetGroup 25% taller
             if hasattr(self, 'mainSplitter'):
@@ -1034,10 +1032,9 @@ class iScoutToolApp(QMainWindow):
             # Update Clear All button state
             self.update_clear_all_button_state(len(self.targets) > 0)
 
-            # Re-enable sorting and sort by Target column
+            # Re-enable sorting but do NOT sort by Target column; preserve import order (newest first)
             self.tblBossList.setSortingEnabled(True)
-            self.tblBossList.sortByColumn(2, QtCore.Qt.AscendingOrder)
-            print(f"Loaded {len(self.targets)} targets to table (sorted by Target)")
+            print(f"Loaded {len(self.targets)} targets to table (import order, newest first)")
 
         except Exception as e:
             print(f"Error loading targets to table: {e}")
@@ -1604,6 +1601,32 @@ class iScoutToolApp(QMainWindow):
         if 0 <= row < len(self.targets):
             self.targets[row].completed = checked
             self.update_target_count()
+
+class ColoredRect(QtWidgets.QWidget):
+
+    # how to use
+    # w = ColoredRect("Moving...", QColor("#0078D4"))
+    # w.move(100, 200)  # x=100, y=200
+    # w.show()
+    def __init__(self, text, color=QColor("#00d4ff")):
+
+        super().__init__()
+        self.text = text
+        self.color = color
+        self.resize(200, 100)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setBrush(self.color)
+        painter.drawRect(self.rect())
+        painter.setFont(QFont("Consolas", 16, QFont.Bold))
+        painter.setPen(QColor("white"))
+        painter.drawText(self.rect(), 
+                         QtCore.Qt.AlignCenter, 
+                         self.text)
+        
+
+
 
 # Ensure entry point is at the end of the file
 if __name__ == "__main__":

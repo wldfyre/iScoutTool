@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\PythonProjects\iScoutTool\iScoutToolModern.ui'
+# Form implementation generated from reading ui file 'iScoutToolModern.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -426,3 +426,13 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "&About iScoutTool"))
         self.actionUserGuide.setText(_translate("MainWindow", "&User Guide"))
         self.actionUserGuide.setShortcut(_translate("MainWindow", "F1"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

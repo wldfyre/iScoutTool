@@ -13,8 +13,7 @@ a = Analysis(
     binaries=[],
     datas=[
         # Include UI files
-        ('iScoutToolModern.ui', '.'),
-        ('iScoutTool.ui', '.'),
+    ('iScoutToolModern.ui', '.'),
         
         # Include Resources directory and contents
         ('Resources', 'Resources'),
@@ -23,8 +22,7 @@ a = Analysis(
         ('iScoutTool.cfg', '.') if os.path.exists(os.path.join(spec_dir, 'iScoutTool.cfg')) else None,
         
         # Include generated UI Python files for backup
-        ('iScoutToolModern_ui.py', '.'),
-        ('iScoutTool_ui.py', '.'),
+        ('iScoutToolModern_ui.py', '.')
     ],
     hiddenimports=[
         'PyQt5.QtCore',
