@@ -112,171 +112,17 @@ class ColoredRect(QtWidgets.QWidget):
         painter.setPen(QColor("white"))
         painter.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
 
-import sys
-import os
-import time
-import winsound
-import xml.etree.ElementTree as ET
-from typing import List, Tuple, Optional
-from dataclasses import dataclass
-from PyQt5 import QtWidgets, QtCore, uic
-from PyQt5.QtWidgets import (
-    QMainWindow, QApplication, QTableWidgetItem, 
-    QPushButton, QCheckBox, QMessageBox, QHeaderView, QInputDialog
-)
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal
-from PyQt5.QtGui import QPainter, QColor, QFont
-from ppadb.client import Client as AdbClient
-
-# ...existing code...
-
-class iScoutToolApp(QMainWindow):
-    """Main application class implementing PRD specifications"""
-    # ...existing code...
-    def show_moving_overlay(self):
-        """Show a small overlay window over the Go button in Bluestacks emulator window as specified in PRD section 3.3.3"""
-        try:
-            import win32gui
-            import win32con
-            import win32api
-        except ImportError:
-            print("pywin32 is required for overlay functionality. Please install with 'pip install pywin32'.")
-            return None
-
-        try:
-            print("=== OVERLAY DEBUG: Starting overlay creation ===")
-
-            # Find Bluestacks window by title
-            hwnd = win32gui.FindWindow(None, "Main")
-            if hwnd == 0:
-                print("OVERLAY DEBUG: Bluestacks window not found (title 'Main')")
-                return None
-
-            # Get window rect (absolute coordinates)
-            left, top, right, bottom = win32gui.GetWindowRect(hwnd)
-            em_width = right - left
-            em_height = bottom - top
-            print(f"OVERLAY DEBUG: BlueStacks window found - Handle: {hwnd}")
-            print(f"OVERLAY DEBUG: BlueStacks absolute coordinates: Left={left}, Top={top}, Right={right}, Bottom={bottom}")
-            print(f"OVERLAY DEBUG: BlueStacks window size: {em_width}x{em_height}")
-
-            # Get NavGo button relative coordinates
-            if 'NavGo' not in self.location_presets:
-                print("OVERLAY DEBUG: NavGo preset not found in location_presets")
-                print(f"OVERLAY DEBUG: Available presets: {list(self.location_presets.keys())}")
-                return None
-
-            preset = self.location_presets['NavGo']
-            print(f"OVERLAY DEBUG: NavGo preset found: x_loc={preset.x_loc}, y_loc={preset.y_loc}, x_dest={preset.x_dest}, y_dest={preset.y_dest}")
-
-            # Calculate pixel coordinates for overlay
-            screen_width, screen_height = self.get_evony_screen_dimensions()
-            print(f"OVERLAY DEBUG: Evony screen dimensions: {screen_width}x{screen_height}")
-
-            x1 = int(preset.x_loc * screen_width)
-            y1 = int(preset.y_loc * screen_height)
-            x2 = int(preset.x_dest * screen_width)
-            y2 = int(preset.y_dest * screen_height)
-            print(f"OVERLAY DEBUG: NavGo button pixel coordinates: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
-
-            overlay_x = left + min(x1, x2)
-            overlay_y = top + min(y1, y2)
-            overlay_w = abs(x2 - x1)
-            overlay_h = abs(y2 - y1)
-            print(f"OVERLAY DEBUG: Overlay absolute coordinates: X={overlay_x}, Y={overlay_y}, Width={overlay_w}, Height={overlay_h}")
-
-            # Create overlay window
-            print("OVERLAY DEBUG: Creating overlay widget...")
-            self.moving_overlay = ColoredRect("MOVING...", QColor("#222"))
-            self.moving_overlay.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
-            self.moving_overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            self.moving_overlay.resize(max(overlay_w, 80), max(overlay_h, 32))
-            self.moving_overlay.move(overlay_x, overlay_y)
-            self.moving_overlay.show()
-            QApplication.processEvents()
-            print("OVERLAY DEBUG: Overlay widget created and shown successfully")
-            return self.moving_overlay
-
-        except Exception as e:
-            print(f"OVERLAY DEBUG: Error showing moving overlay: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
-
-    def hide_moving_overlay(self):
-        """Remove the moving overlay window after navigation completes"""
-        try:
-            print("OVERLAY DEBUG: Attempting to hide overlay...")
-            if hasattr(self, 'moving_overlay') and self.moving_overlay:
-                print("OVERLAY DEBUG: Overlay widget found, hiding and deleting...")
-                self.moving_overlay.hide()
-                self.moving_overlay.deleteLater()
-                self.moving_overlay = None
-                QApplication.processEvents()
-                print("OVERLAY DEBUG: Overlay successfully hidden and cleaned up")
-            else:
-                print("OVERLAY DEBUG: No overlay widget found to hide")
-        except Exception as e:
-            print(f"OVERLAY DEBUG: Error hiding moving overlay: {e}")
-            import traceback
-            traceback.print_exc()
-    """Configuration data structure as specified in PRD section 4.3"""
-    home_server: int = 0      # User's home server
-    home_x: int = 0          # Home X coordinate
-    home_y: int = 0          # Home Y coordinate
-    enemy_server: int = 0    # Target server for operations
-    adb_port: int = 5555     # BlueStacks connection port
-
-
-class TimerThread(QThread):
-    """Timer thread for countdown functionality as specified in PRD section 5.1.2"""
-    time_updated = pyqtSignal(str)  # Signal to update UI with formatted time
-    beep_signal = pyqtSignal()      # Signal to trigger beep sound
-    timer_finished = pyqtSignal()   # Signal when timer reaches zero
-    
-    def __init__(self):
-        super().__init__()
-        self.timer_seconds = 0
-        self.running = False
-        
-    def start_timer(self, seconds: int = 300):
-        """Start countdown timer (default 5 minutes)"""
-        self.timer_seconds = seconds
-        self.running = True
-        self.start()
-        
-    def stop_timer(self):
-        """Stop and reset countdown timer"""
-        self.running = False
-        self.timer_seconds = 0
-        # Don't emit time_updated to avoid triggering beep or unwanted updates
-        
-    def run(self):
-        """Timer thread main loop"""
-        while self.running and self.timer_seconds > 0:
-            # Format time as MM:SS
-            minutes = self.timer_seconds // 60
-            seconds = self.timer_seconds % 60
-            time_str = f"{minutes:02d}:{seconds:02d}"
-            self.time_updated.emit(time_str)
-            
-            # Beep during final 30 seconds
-            if self.timer_seconds <= 30:
-                self.beep_signal.emit()
-                
-            time.sleep(1)
-            self.timer_seconds -= 1
-            
-        if self.running and self.timer_seconds <= 0:
-            self.time_updated.emit("00:00")
-            self.timer_finished.emit()
-        self.running = False
-
 
 class iScoutToolApp(QMainWindow):
     """Main application class implementing PRD specifications"""
     
-    def __init__(self):
+    # UI Constants for overlay positioning and sizing
+    BLUESTACKS_X_OFFSET = 2
+    BLUESTACKS_Y_OFFSET = 33
+    OVERLAY_MIN_WIDTH = 80
+    OVERLAY_MIN_HEIGHT = 32
+    
+    def __init__(self, bluestacks_port: int = 5555, bluestacks_window_title: str = "Main"):
         super().__init__()
         
         # Initialize application state
@@ -288,6 +134,10 @@ class iScoutToolApp(QMainWindow):
         self.timer_thread = TimerThread()
         self.screen_width = 0
         self.screen_height = 0
+        
+        # Store command line parameters
+        self.bluestacks_port = bluestacks_port
+        self.bluestacks_window_title = bluestacks_window_title
         
         # Initialize UI and components
         self.setup_application()
@@ -685,9 +535,9 @@ class iScoutToolApp(QMainWindow):
             self.adb_client = AdbClient(host='localhost', port=5037)
             
             # Try to connect to BlueStacks device directly first
-            print("Attempting direct connection to 127.0.0.1:5555...")
+            print(f"Attempting direct connection to 127.0.0.1:{self.bluestacks_port}...")
             try:
-                self.adb_client.remote_connect("127.0.0.1", 5555)
+                self.adb_client.remote_connect("127.0.0.1", self.bluestacks_port)
                 print("Direct connection attempt completed")
             except Exception as e:
                 print(f"Direct connection failed (may already be connected): {e}")
@@ -705,7 +555,7 @@ class iScoutToolApp(QMainWindow):
             for device in devices:
                 device_serial = getattr(device, 'serial', '')
                 print(f"Checking device: {device_serial}")
-                if "127.0.0.1:5555" in device_serial or "localhost:5555" in device_serial or "5555" in device_serial:
+                if f"127.0.0.1:{self.bluestacks_port}" in device_serial or f"localhost:{self.bluestacks_port}" in device_serial or str(self.bluestacks_port) in device_serial:
                     self.adb_device = device
                     print(f"Found BlueStacks device: {device_serial}")
                     break
@@ -721,7 +571,7 @@ class iScoutToolApp(QMainWindow):
                 else:
                     print("BlueStacks connected but Evony not detected")
             else:
-                print("BlueStacks device not found on port 5555")
+                print(f"BlueStacks device not found on port {self.bluestacks_port}")
                 print("Available devices:", [str(d) for d in devices])
                 
             self.update_connection_status(False)
@@ -1431,9 +1281,9 @@ class iScoutToolApp(QMainWindow):
             print("=== OVERLAY DEBUG: Starting overlay creation ===")
 
             # Find Bluestacks window by title
-            hwnd = win32gui.FindWindow(None, "Main")
+            hwnd = win32gui.FindWindow(None, self.bluestacks_window_title)
             if hwnd == 0:
-                print("OVERLAY DEBUG: Bluestacks window not found (title 'Main')")
+                print(f"OVERLAY DEBUG: Bluestacks window not found (title '{self.bluestacks_window_title}')")
                 return None
 
             # Get window rect (absolute coordinates)
@@ -1463,8 +1313,8 @@ class iScoutToolApp(QMainWindow):
             y2 = int(preset.y_dest * screen_height)
             print(f"OVERLAY DEBUG: NavGo button pixel coordinates: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
 
-            overlay_x = left + min(x1, x2) + 2 # +2 for left edge pixel
-            overlay_y = top + min(y1, y2) + 60  # +60 for title bar offset
+            overlay_x = left + min(x1, x2) + self.BLUESTACKS_X_OFFSET # BlueStacks UI X offset
+            overlay_y = top + min(y1, y2) + self.BLUESTACKS_Y_OFFSET  # BlueStacks UI Y offset
             overlay_w = abs(x2 - x1)
             overlay_h = abs(y2 - y1)
             print(f"OVERLAY DEBUG: Overlay absolute coordinates: X={overlay_x}, Y={overlay_y}, Width={overlay_w}, Height={overlay_h}")
@@ -1474,7 +1324,7 @@ class iScoutToolApp(QMainWindow):
             self.moving_overlay = ColoredRect("MOVING...", QColor("#222"))
             self.moving_overlay.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
             self.moving_overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-            self.moving_overlay.resize(max(overlay_w, 80), max(overlay_h, 32))
+            self.moving_overlay.resize(max(overlay_w, self.OVERLAY_MIN_WIDTH), max(overlay_h, self.OVERLAY_MIN_HEIGHT))
             self.moving_overlay.move(overlay_x, overlay_y)
             self.moving_overlay.show()
             QApplication.processEvents()
@@ -1864,8 +1714,19 @@ class iScoutToolApp(QMainWindow):
 # Ensure entry point is at the end of the file
 if __name__ == "__main__":
     import sys
+    import argparse
     from PyQt5.QtWidgets import QApplication
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='iScoutTool - Evony Automation Application')
+    parser.add_argument('--port', type=int, default=5555, 
+                       help='BlueStacks ADB port (default: 5555)')
+    parser.add_argument('--window-title', type=str, default='Main',
+                       help='BlueStacks window title (default: "Main")')
+    
+    args = parser.parse_args()
+    
     app = QApplication(sys.argv)
-    window = iScoutToolApp()
+    window = iScoutToolApp(bluestacks_port=args.port, bluestacks_window_title=args.window_title)
     window.show()
     sys.exit(app.exec_())

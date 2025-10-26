@@ -31,8 +31,9 @@ iScoutTool is a Python-based automation application designed to interface with t
 - **PyQt5**: GUI framework for modern user interface
 - **UI Design**: `iScoutToolModern.ui` - Modern dark theme interface with enhanced workflow
 - **ppadb (Pure Python ADB)**: Android Debug Bridge interface for BlueStacks communication
-- **BlueStacks 5**: Android emulator platform (target port 5555)
+- **BlueStacks 5**: Android emulator platform (configurable port, default 5555)
 - **XML**: Configuration and preset data storage
+- **Command Line Interface**: argparse for configurable startup parameters
 
 ### 2.2 System Requirements
 - Windows 10/11 operating system
@@ -43,8 +44,26 @@ iScoutTool is a Python-based automation application designed to interface with t
     - xml.etree.ElementTree (built-in)
     - threading (built-in)
     - configparser (built-in)
-- Network connectivity to BlueStacks on localhost:5555
+- Network connectivity to BlueStacks on localhost (configurable port)
 - Minimum 4GB RAM, 2GB free disk space
+
+### 2.3 Command Line Parameters
+The application supports configurable startup parameters for flexible BlueStacks integration:
+
+```bash
+iScoutTool.py [--port PORT] [--window-title TITLE]
+
+Options:
+  --port PORT           BlueStacks ADB port (default: 5555)
+  --window-title TITLE  BlueStacks window title (default: "Main")
+  --help               Show help message and exit
+```
+
+**Parameter Details**:
+- **--port**: Integer port number for ADB connection (1-65535)
+- **--window-title**: String window title for BlueStacks window detection
+- **Defaults**: Sensible defaults allow backward compatibility
+- **Validation**: Parameters validated on startup with clear error messages
 
 ## 3. Functional Requirements
 
@@ -311,13 +330,24 @@ class LocationPreset:
 ### 4.3 Configuration Data
 ```python
 class AppConfig:
-    home_server: int      # User's home server
-    home_x: int          # Home X coordinate
-    home_y: int          # Home Y coordinate
-    enemy_server: int    # Target server for operations
-    adb_port: int        # BlueStacks connection port (5555)
+    """Configuration data structure as specified in PRD section 4.3"""
+    home_server: int = 0      # User's home server
+    home_x: int = 0          # Home X coordinate
+    home_y: int = 0          # Home Y coordinate
+    enemy_server: int = 0    # Target server for operations
+    adb_port: int = 5555     # BlueStacks connection port
 ```
     this data will be saved/fetched from a flat file named iScoutTool.cfg, in a comma delimited format
+
+### 4.4 UI Constants
+```python
+class iScoutToolApp(QMainWindow):
+    """UI Constants for overlay positioning and sizing - replaces magic numbers for maintainability"""
+    BLUESTACKS_X_OFFSET = 2      # X offset for BlueStacks UI elements (pixels)
+    BLUESTACKS_Y_OFFSET = 33     # Y offset for BlueStacks UI elements (pixels) 
+    OVERLAY_MIN_WIDTH = 80       # Minimum width for overlay windows (pixels)
+    OVERLAY_MIN_HEIGHT = 32      # Minimum height for overlay windows (pixels)
+```
 
 ## 5. Key Interactions and Methods
 User will manually copy and paste information from an app called iScout, to the text box named txtiScoutBoss
@@ -330,43 +360,50 @@ For now, it will
 ```python
 def __init__(self):
     """Initialize main application with modern UI"""
-    # Load iScoutToolModern.ui file
+    # Load iScoutToolModern.ui file using uic.loadUi()
+    # Set window title: "iScoutTool - Evony Automation v1.0.0"
+    # Set initial splitter sizes: [110, 330] (Data Input compact, Scout Targets expanded)
     # Call setup_modern_interface() to configure UI elements
-    # Call configure_splitter_layout() to set optimal proportions
+    # Call configure_splitter_layout() to set optimal proportions  
     # Call setup_enhanced_table() to configure table display
     # Load configuration from iScoutTool.cfg
-    # Initialize ADB connection
-    # Set up timer thread
+    # Load location presets from Resources/locations.xml
+    # Initialize ADB connection with delayed startup (500ms)
+    # Set up timer thread and signals
     # Connect signal handlers for UI events
 ```
 
 #### 5.1.2 Timer Management
 ```python
-def start_timer():
-    """Start 5 minute (300 second) countdown timer in separate thread"""
-    # Initialize timer_seconds = 300
-    # Start timer_thread with update_timer() called every 1000ms
-    # Update lblTimer display
+def start_timer(seconds: int = 300):
+    """Start countdown timer in separate thread (default 5 minutes)"""
+    # Initialize TimerThread with specified seconds
+    # Start timer_thread with time_updated/beep_signal/timer_finished signals
+    # Update lblTimer display with MM:SS format
     
-def stop_timer():
-    """Stop and reset countdown timer"""
-    # Set timer_seconds = 0
-    # Stop timer_thread
-    # Update lblTimer to show "00:00"
+def stop_timer(reset_display: bool = True):
+    """Stop and optionally reset countdown timer"""
+    # Stop timer_thread 
+    # Reset timer_seconds = 0
+    # Update lblTimer to show "00:00" if reset_display=True
     
-def update_timer():
-    """Update lblTimer with current countdown time in MM:SS format"""
-    # Decrement timer_seconds by 1
-    # Format as MM:SS (e.g., "04:23")
-    # Update lblTimer.setText()
-    # If timer_seconds <= 30, call beep_sound()
-    # If timer_seconds <= 0, call stop_timer()
+def update_timer_display(time_str: str):
+    """Update lblTimer with current countdown time and visual warnings"""
+    # Update lblTimer.setText(time_str) in MM:SS format
+    # If timer_seconds <= 30: apply red flashing effect with background color changes
+    # If timer_seconds > 30: apply normal blue styling
+    # Trigger beep_sound() for final 30 seconds
     
 def beep_sound():
-    """Generate system beep sound once per second for final 30 seconds of countdown"""
-    # Use platform-specific beep (Windows: winsound.Beep())
-    # 1000Hz tone for 200ms duration
-    # Import required: import winsound
+    """Generate system beep sound for final 30 seconds with extended final beep"""
+    # Use winsound.Beep() for audio feedback
+    # Normal beep: 1000Hz for 200ms during countdown
+    # Final beep: 1000Hz for 1000ms when timer reaches 0
+    
+def on_timer_finished():
+    """Handle timer completion with extended beep and display reset"""
+    # Play extended final beep (1 second)
+    # Reset timer display to normal appearance (white text, normal font)
 ```
 
 #### 5.1.2 Modern UI Initialization
@@ -524,23 +561,33 @@ def validate_coordinates(x, y, server):
 
 #### 5.1.6 Game Automation
 ```python
-def navigate_to_coordinates(x, y, server=None):
-    """Navigate to specified map coordinates in Evony"""
-    #1. verify the magnifying glass icon is on the Evony screen.
-        #if not, ask user to manually navigate to server screen and exit method
-    #2. Click on the centerpoint for NavBox
-    #3. Click on the centerpoint for NavServer
-    #4. Clear the server field in Evony by sending 'select all' and 'delete' via adb to Evony
-    #5.  Send the server value passed to function, to Evony via adb
-    #6. Send <Enter>
-    #7. Repeat steps 3 - 7 using centerpoint for NavX and the passed 'x' value
-    #8. Repeat steps 3-7 using centerpoint for NavY and the passed 'y' value
-    #9. Click on the centerpoint for NavGo
+def navigate_to_coordinates(self, x: int, y: int, server: int = None, skip_server: bool = False) -> bool:
+    """Navigate to specified map coordinates in Evony with overlay blocking"""
+    # Validate coordinates and server parameters
+    # Reconnect to ADB if needed
+    # Get screen dimensions via ADB
+    # Get NavBox coordinates from locations.xml
+    # Calculate centerpoint and click NavBox to open navigation dialog
+    # Show moving overlay to block Go button during coordinate entry
+    # Enter server (skip if skip_server=True)
+    # Enter X coordinate with text input clearing
+    # Enter Y coordinate with text input clearing  
+    # Click NavGo button and hide overlay
+    # Return success/failure status
     
-def perform_click(x_relative, y_relative):
+def perform_click(self, x_relative: float, y_relative: float) -> bool:
     """Send click command to specific screen location"""
-    #1. Use adb to send a click command to Evony, to be performed at the passed coordinates  
-
+    # Convert relative coordinates (0.0-1.0) to pixel coordinates
+    # Send ADB input tap command
+    # Return success/failure status
+    
+def send_text_input(self, text: str) -> bool:
+    """Reliable ADB text input with field clearing"""
+    # Move cursor to end of field (KEYCODE_MOVE_END)
+    # Clear field with multiple backspaces (5 backspaces in single command)
+    # Send new text via input text command
+    # Confirm with Enter key (KEYCODE_ENTER)
+    # Return success/failure status
 ```
 
 #### 5.1.7 Navigation Workflow
@@ -603,10 +650,15 @@ def on_reset_timer_clicked():
     # Does not play beep sound (silent reset)
     # Restores timer to ready state without starting countdown
     
-def on_target_go_clicked(row_index):
-    """Navigate to specific target from table row"""
-    # Use intEnemyServer, row cell from 'X' and 'Y' columns
-    # Mark target as completed in modern UI
+def on_target_go_clicked(self, row_index: int):
+    """Navigate to specific target from table row and mark as completed"""
+    # Immediately check the "Got It" checkbox for the target row
+    # Extract X and Y coordinates from table columns (3=X, 4=Y)
+    # Get enemy server from intEnemyServer field
+    # Validate coordinates and server values
+    # Call navigate_to_coordinates() with skip_server=True (keep current server)
+    # Update target completion status in data model
+    # Return navigation success/failure status
 ```
 
 #### 5.2.3 Table Interactions
@@ -962,11 +1014,34 @@ class ADBTextInputMixin:
     - Last two fields must be valid integers
     - Boss/Barb description cannot be empty
 
-### 7.3 Game State Errors
-- **Connection Recovery**: 3 retry attempts with 2-second delays
-- **UI Element Detection**: Timeout after 5 seconds
-- **Navigation Validation**: Verify successful coordinate entry
-- **Logging**: All errors logged to iScoutTool.log with timestamps
+### 7.4 Enhanced Error Handling Implementation
+
+**Beyond PRD Specifications**: The implementation includes comprehensive error handling that exceeds the original PRD requirements:
+
+#### 7.4.1 ADB Connection Error Handling
+- **Automatic ADB Server Management**: Detects missing ADB server and starts it automatically
+- **FileNotFoundError Handling**: Graceful fallback when ADB executable not found in PATH
+- **Timeout Protection**: 10-second timeout for ADB server startup operations
+- **Connection Retry Logic**: Intelligent reconnection attempts with detailed logging
+- **Device Discovery**: Flexible device detection supporting multiple connection patterns
+
+#### 7.4.2 UI Error Recovery
+- **Connection Status Updates**: Real-time UI feedback for connection state changes
+- **Modal Error Dialogs**: User-friendly error messages with specific troubleshooting guidance
+- **Graceful Degradation**: Application continues functioning even with partial connection failures
+- **Input Validation**: Comprehensive validation with user-friendly error messages
+
+#### 7.4.3 Navigation Error Recovery
+- **Overlay Cleanup**: Automatic overlay removal on navigation errors
+- **State Synchronization**: UI state properly updated after failed operations
+- **Detailed Logging**: Extensive debug logging for troubleshooting navigation issues
+- **Coordinate Validation**: Pre-flight validation of all coordinate and server parameters
+
+#### 7.4.4 Configuration Error Handling
+- **Auto-Creation**: Missing configuration files created with sensible defaults
+- **Validation on Load**: Configuration values validated and corrected on startup
+- **Save Error Recovery**: Graceful handling of configuration save failures
+- **Type Safety**: Robust type conversion with error recovery
 
 ## 8. Performance Requirements
 
@@ -1032,11 +1107,31 @@ class ADBTextInputMixin:
     - Verify ADB connection: `adb devices` should show `127.0.0.1:5555`
 
 4. **First Run Setup**:
-    - Launch iScoutTool application (will load iScoutToolModern.ui automatically)
-    - Modern dark theme interface will be applied
+    - Launch iScoutTool application with optional command line parameters:
+        ```bash
+        # Default configuration (recommended for most users)
+        python iScoutTool.py
+        
+        # Custom BlueStacks port
+        python iScoutTool.py --port 5556
+        
+        # Custom window title and port
+        python iScoutTool.py --port 5557 --window-title "BlueStacks App Player"
+        ```
+    - Modern dark theme interface will be applied automatically
     - Configure home server coordinates in enhanced UI fields
     - Test ADB connection with "🏠 Go Home" button
     - Verify timer functionality and emulator connection status indicator
+
+5. **VS Code Development Setup** (Optional):
+    - For developers testing different BlueStacks configurations, VS Code launch configurations are provided
+    - Open the project in VS Code: `code .`
+    - Use the Play button (F5) to run the application with predefined argument combinations:
+        - **Default**: No arguments (port 5555, window "Main")
+        - **Custom Port**: `--port 5556` for alternative BlueStacks instances
+        - **Custom Window**: `--window-title "BlueStacks App Player"` for different window titles
+        - **Full Custom**: `--port 5557 --window-title "BlueStacks Multi-Instance"` for complete customization
+    - Launch configurations are defined in `.vscode/launch.json` for easy testing of command-line functionality
 
 ### 10.2 Troubleshooting
 - **ADB Connection Issues**: Restart BlueStacks, check firewall settings
