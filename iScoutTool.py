@@ -17,26 +17,12 @@ from typing import List, Tuple, Optional
 from dataclasses import dataclass
 from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtWidgets import (
-    QMainWindow, QApplication, QTableWidgetItem, 
+    QMainWindow, QApplication, QTableWidgetItem,
     QPushButton, QCheckBox, QMessageBox, QHeaderView, QInputDialog
 )
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal
 from PyQt5.QtGui import QPainter, QColor, QFont
 from ppadb.client import Client as AdbClient
-
-
-class NumericTableWidgetItem(QTableWidgetItem):
-    """Custom QTableWidgetItem that sorts numerically instead of lexicographically"""
-    def __init__(self, value):
-        super().__init__(str(value))
-        self.numeric_value = int(value) if isinstance(value, (int, str)) else 0
-    
-    def __lt__(self, other):
-        """Override less-than comparison for proper numeric sorting"""
-        if isinstance(other, NumericTableWidgetItem):
-            return self.numeric_value < other.numeric_value
-        return super().__lt__(other)
-
 
 @dataclass
 class ScoutTarget:
@@ -45,7 +31,6 @@ class ScoutTarget:
     x_coordinate: int       # Map X position
     y_coordinate: int       # Map Y position
     completed: bool = False # User marked as completed
-
 
 @dataclass
 class LocationPreset:
@@ -57,9 +42,184 @@ class LocationPreset:
     y_dest: float         # Destination Y (0.0-1.0)
     click_and_drag: bool  # Action type flag
 
-
 @dataclass
 class AppConfig:
+    """Configuration data structure as specified in PRD section 4.3"""
+    home_server: int = 0      # User's home server
+    home_x: int = 0          # Home X coordinate
+    home_y: int = 0          # Home Y coordinate
+    enemy_server: int = 0    # Target server for operations
+    adb_port: int = 5555     # BlueStacks connection port
+
+class TimerThread(QThread):
+    """Timer thread for countdown functionality as specified in PRD section 5.1.2"""
+    time_updated = pyqtSignal(str)  # Signal to update UI with formatted time
+    beep_signal = pyqtSignal()      # Signal to trigger beep sound
+    timer_finished = pyqtSignal()   # Signal when timer reaches zero
+
+    def __init__(self):
+        super().__init__()
+        self.timer_seconds = 0
+        self.running = False
+
+    def start_timer(self, seconds: int = 300):
+        """Start countdown timer (default 5 minutes)"""
+        self.timer_seconds = seconds
+        self.running = True
+        self.start()
+
+    def stop_timer(self):
+        """Stop and reset countdown timer"""
+        self.running = False
+        self.timer_seconds = 0
+        # Don't emit time_updated to avoid triggering beep or unwanted updates
+
+    def run(self):
+        """Timer thread main loop"""
+        while self.running and self.timer_seconds > 0:
+            # Format time as MM:SS
+            minutes = self.timer_seconds // 60
+            seconds = self.timer_seconds % 60
+            time_str = f"{minutes:02d}:{seconds:02d}"
+            self.time_updated.emit(time_str)
+
+            # Beep during final 30 seconds
+            if self.timer_seconds <= 30:
+                self.beep_signal.emit()
+
+            time.sleep(1)
+            self.timer_seconds -= 1
+
+        if self.running and self.timer_seconds <= 0:
+            self.time_updated.emit("00:00")
+            self.timer_finished.emit()
+        self.running = False
+
+class ColoredRect(QtWidgets.QWidget):
+    """Overlay widget for blocking Go button during navigation"""
+
+    def __init__(self, text, color=QColor("#00d4ff")):
+        super().__init__()
+        self.text = text
+        self.color = color
+        self.resize(200, 100)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setBrush(self.color)
+        painter.drawRect(self.rect())
+        painter.setFont(QFont("Consolas", 16, QFont.Bold))
+        painter.setPen(QColor("white"))
+        painter.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
+
+import sys
+import os
+import time
+import winsound
+import xml.etree.ElementTree as ET
+from typing import List, Tuple, Optional
+from dataclasses import dataclass
+from PyQt5 import QtWidgets, QtCore, uic
+from PyQt5.QtWidgets import (
+    QMainWindow, QApplication, QTableWidgetItem, 
+    QPushButton, QCheckBox, QMessageBox, QHeaderView, QInputDialog
+)
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from PyQt5.QtGui import QPainter, QColor, QFont
+from ppadb.client import Client as AdbClient
+
+# ...existing code...
+
+class iScoutToolApp(QMainWindow):
+    """Main application class implementing PRD specifications"""
+    # ...existing code...
+    def show_moving_overlay(self):
+        """Show a small overlay window over the Go button in Bluestacks emulator window as specified in PRD section 3.3.3"""
+        try:
+            import win32gui
+            import win32con
+            import win32api
+        except ImportError:
+            print("pywin32 is required for overlay functionality. Please install with 'pip install pywin32'.")
+            return None
+
+        try:
+            print("=== OVERLAY DEBUG: Starting overlay creation ===")
+
+            # Find Bluestacks window by title
+            hwnd = win32gui.FindWindow(None, "Main")
+            if hwnd == 0:
+                print("OVERLAY DEBUG: Bluestacks window not found (title 'Main')")
+                return None
+
+            # Get window rect (absolute coordinates)
+            left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+            em_width = right - left
+            em_height = bottom - top
+            print(f"OVERLAY DEBUG: BlueStacks window found - Handle: {hwnd}")
+            print(f"OVERLAY DEBUG: BlueStacks absolute coordinates: Left={left}, Top={top}, Right={right}, Bottom={bottom}")
+            print(f"OVERLAY DEBUG: BlueStacks window size: {em_width}x{em_height}")
+
+            # Get NavGo button relative coordinates
+            if 'NavGo' not in self.location_presets:
+                print("OVERLAY DEBUG: NavGo preset not found in location_presets")
+                print(f"OVERLAY DEBUG: Available presets: {list(self.location_presets.keys())}")
+                return None
+
+            preset = self.location_presets['NavGo']
+            print(f"OVERLAY DEBUG: NavGo preset found: x_loc={preset.x_loc}, y_loc={preset.y_loc}, x_dest={preset.x_dest}, y_dest={preset.y_dest}")
+
+            # Calculate pixel coordinates for overlay
+            screen_width, screen_height = self.get_evony_screen_dimensions()
+            print(f"OVERLAY DEBUG: Evony screen dimensions: {screen_width}x{screen_height}")
+
+            x1 = int(preset.x_loc * screen_width)
+            y1 = int(preset.y_loc * screen_height)
+            x2 = int(preset.x_dest * screen_width)
+            y2 = int(preset.y_dest * screen_height)
+            print(f"OVERLAY DEBUG: NavGo button pixel coordinates: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
+
+            overlay_x = left + min(x1, x2)
+            overlay_y = top + min(y1, y2)
+            overlay_w = abs(x2 - x1)
+            overlay_h = abs(y2 - y1)
+            print(f"OVERLAY DEBUG: Overlay absolute coordinates: X={overlay_x}, Y={overlay_y}, Width={overlay_w}, Height={overlay_h}")
+
+            # Create overlay window
+            print("OVERLAY DEBUG: Creating overlay widget...")
+            self.moving_overlay = ColoredRect("MOVING...", QColor("#222"))
+            self.moving_overlay.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+            self.moving_overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+            self.moving_overlay.resize(max(overlay_w, 80), max(overlay_h, 32))
+            self.moving_overlay.move(overlay_x, overlay_y)
+            self.moving_overlay.show()
+            QApplication.processEvents()
+            print("OVERLAY DEBUG: Overlay widget created and shown successfully")
+            return self.moving_overlay
+
+        except Exception as e:
+            print(f"OVERLAY DEBUG: Error showing moving overlay: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def hide_moving_overlay(self):
+        """Remove the moving overlay window after navigation completes"""
+        try:
+            print("OVERLAY DEBUG: Attempting to hide overlay...")
+            if hasattr(self, 'moving_overlay') and self.moving_overlay:
+                print("OVERLAY DEBUG: Overlay widget found, hiding and deleting...")
+                self.moving_overlay.hide()
+                self.moving_overlay.deleteLater()
+                self.moving_overlay = None
+                QApplication.processEvents()
+                print("OVERLAY DEBUG: Overlay successfully hidden and cleaned up")
+            else:
+                print("OVERLAY DEBUG: No overlay widget found to hide")
+        except Exception as e:
+            print(f"OVERLAY DEBUG: Error hiding moving overlay: {e}")
+            import traceback
+            traceback.print_exc()
     """Configuration data structure as specified in PRD section 4.3"""
     home_server: int = 0      # User's home server
     home_x: int = 0          # Home X coordinate
@@ -878,60 +1038,63 @@ class iScoutToolApp(QMainWindow):
             
         except Exception as e:
             print(f"Error handling data input text change: {e}")
-    
+
+    def on_got_it_checkbox_changed(self, row: int, checked: bool):
+        """Update completed status for the target at the given row and refresh target count."""
+        try:
+            if 0 <= row < len(self.targets):
+                self.targets[row].completed = checked
+                self.update_target_count()
+        except Exception as e:
+            print(f"Error updating checkbox state: {e}")
+
     # Data Parsing Methods (PRD Section 5.1.5)
     
     def parse_scout_text(self, text_input: str) -> List[ScoutTarget]:
         """Parse tab-separated scout report into target objects as specified in PRD section 3.1.3"""
         targets = []
+        # Bounding box corners
+        min_x, max_x = 574, 626
+        min_y, max_y = 574, 626
         try:
             lines = text_input.strip().split('\n')
             for line in lines:
                 line = line.strip()
                 if not line:
                     continue
-                
                 # Split by tabs
                 parts = line.split('\t')
                 if len(parts) < 3:
                     continue
-                
                 # Parse from right to left as specified in PRD
                 try:
                     y_coordinate = int(parts[-1].strip())  # Last field: Y coordinate
                     x_coordinate = int(parts[-2].strip())  # Second-to-last: X Coordinate
-                    
                     # Remaining fields (left side): Combined into Boss/Barb description
                     description_parts = parts[:-2]
                     target_type = ' '.join(description_parts).strip()
-                    
                     # Validate coordinates per PRD section 7.2
                     if not (1 <= x_coordinate <= 1198):
-                        print(f"Invalid X coordinate: {x_coordinate}, skipping target")
                         continue
                     if not (1 <= y_coordinate <= 1200):
-                        print(f"Invalid Y coordinate: {y_coordinate}, skipping target")
                         continue
-                    
-                    target = ScoutTarget(
-                        target_type=target_type,
-                        x_coordinate=x_coordinate,
-                        y_coordinate=y_coordinate,
-                        completed=False
-                    )
-                    targets.append(target)
-                    
+                    # Check if coordinates are OUTSIDE bounding box
+                    if not (min_x <= x_coordinate <= max_x and min_y <= y_coordinate <= max_y):
+                        target = ScoutTarget(
+                            target_type=target_type,
+                            x_coordinate=x_coordinate,
+                            y_coordinate=y_coordinate,
+                            completed=False
+                        )
+                        targets.append(target)
                 except (ValueError, IndexError) as e:
                     print(f"Error parsing line '{line}': {e}")
                     continue
-            
-            print(f"Parsed {len(targets)} targets successfully")
+            print(f"Parsed {len(targets)} targets successfully (outside bounding box)")
             return targets
-            
         except Exception as e:
             print(f"Error parsing scout text: {e}")
             return []
-    
     def load_targets_to_table(self):
         """Populate UI table with parsed target data as specified in PRD"""
 
@@ -1112,11 +1275,11 @@ class iScoutToolApp(QMainWindow):
             if server is None:
                 # Only fall back to config if no server is provided
                 server = self.config.enemy_server or 0
-            
+
             # Validate coordinates
             if not self.validate_coordinates(x, y, server):
                 return False
-            
+
             # Check connection
             print(f"DEBUG: Checking ADB connection...")
             if not self.reconnect_if_needed():
@@ -1125,9 +1288,9 @@ class iScoutToolApp(QMainWindow):
                 return False
             else:
                 print(f"DEBUG: ADB connection verified - device: {self.adb_device}")
-            
+
             print(f"Navigating to Server {server}, X: {x}, Y: {y}")
-            
+
             # Step 1: Get screen dimensions
             print(f"DEBUG: Getting Evony screen dimensions...")
             screen_width, screen_height = self.get_evony_screen_dimensions()
@@ -1135,7 +1298,7 @@ class iScoutToolApp(QMainWindow):
             if screen_width == 0 or screen_height == 0:
                 print("DEBUG: FAILED - Could not detect screen dimensions")
                 return False
-            
+
             # Step 2: Get NavBox coordinates and calculate centerpoint
             print(f"DEBUG: Getting NavBox coordinates...")
             navbox_coords = self.get_navbox_coordinates()
@@ -1143,12 +1306,12 @@ class iScoutToolApp(QMainWindow):
             if not navbox_coords:
                 print("DEBUG: FAILED - Could not get NavBox coordinates")
                 return False
-            
+
             x_loc, y_loc, x_dest, y_dest = navbox_coords
             center_x, center_y = self.calculate_click_coordinates(
                 screen_width, screen_height, x_loc, y_loc, x_dest, y_dest
             )
-            
+
             # Step 3: Click NavBox to open navigation
             print(f"DEBUG: About to click NavBox at ({center_x}, {center_y})")
             if not self.click_navbox(center_x, center_y):
@@ -1159,8 +1322,12 @@ class iScoutToolApp(QMainWindow):
                 # Extra delay when skipping server to ensure dialog is ready
                 if skip_server:
                     time.sleep(0.2)  # Additional delay when skipping server step
-            
-            # Step 4: Enter server (skip if skip_server is True)
+
+            # Step 4: Show overlay to block Go button during coordinate entry
+            print("DEBUG: Showing moving overlay to block Go button during coordinate entry...")
+            self.show_moving_overlay()
+
+            # Step 5: Enter server (skip if skip_server is True)
             if not skip_server and 'NavServer' in self.location_presets:
                 preset = self.location_presets['NavServer']
                 center_x, center_y = self.calculate_click_coordinates(
@@ -1172,14 +1339,16 @@ class iScoutToolApp(QMainWindow):
                     time.sleep(0.1)  # Small delay after click before text input
                     if not self.send_text_input(server_value):
                         print(f"DEBUG NavServer: FAILED to send server value '{server_value}'")
+                        self.hide_moving_overlay()
                         return False
                     else:
                         print(f"DEBUG NavServer: SUCCESS sent server value '{server_value}'")
                 else:
                     print(f"DEBUG NavServer: FAILED to click NavServer field")
+                    self.hide_moving_overlay()
                     return False
-            
-            # Step 5: Enter X coordinate (no delays)
+
+            # Step 6: Enter X coordinate (no delays)
             if 'NavX' in self.location_presets:
                 preset = self.location_presets['NavX']
                 center_x, center_y = self.calculate_click_coordinates(
@@ -1191,15 +1360,17 @@ class iScoutToolApp(QMainWindow):
                     time.sleep(0.2)  # Increased delay after click before text input
                     if not self.send_text_input(x_value):
                         print(f"DEBUG NavX: FAILED to send X coordinate '{x_value}'")
+                        self.hide_moving_overlay()
                         return False
                     else:
                         print(f"DEBUG NavX: SUCCESS sent X coordinate '{x_value}'")
                         time.sleep(0.1)  # Small delay after X input before Y
                 else:
                     print(f"DEBUG NavX: FAILED to click NavX field")
+                    self.hide_moving_overlay()
                     return False
-            
-            # Step 6: Enter Y coordinate (no delays)
+
+            # Step 7: Enter Y coordinate (no delays)
             if 'NavY' in self.location_presets:
                 preset = self.location_presets['NavY']
                 center_x, center_y = self.calculate_click_coordinates(
@@ -1211,32 +1382,128 @@ class iScoutToolApp(QMainWindow):
                     time.sleep(0.1)  # Small delay after click before text input
                     if not self.send_text_input(y_value):
                         print(f"DEBUG NavY: FAILED to send Y coordinate '{y_value}'")
+                        self.hide_moving_overlay()
                         return False
                     else:
                         print(f"DEBUG NavY: SUCCESS sent Y coordinate '{y_value}'")
                 else:
                     print(f"DEBUG NavY: FAILED to click NavY field")
+                    self.hide_moving_overlay()
                     return False
-            
-            # Step 7: Click NavGo button and return immediately
+
+            # Step 8: Click NavGo button and hide overlay
             if 'NavGo' in self.location_presets:
                 preset = self.location_presets['NavGo']
                 center_x, center_y = self.calculate_click_coordinates(
                     screen_width, screen_height, preset.x_loc, preset.y_loc, preset.x_dest, preset.y_dest
                 )
+                print(f"DEBUG NavGo: About to click NavGo button and hide overlay...")
                 if not self.click_at_pixel(center_x, center_y, "NavGo"):
+                    self.hide_moving_overlay()
                     return False
+                # Hide overlay after clicking NavGo
+                self.hide_moving_overlay()
                 # No wait - return immediately for manual action
-            
+
             print(f"Fast navigation to {server}:{x},{y} - ready for manual action")
             return True
-            
+
         except Exception as e:
             print(f"Error navigating to coordinates: {e}")
+            # Make sure to hide overlay on error
+            self.hide_moving_overlay()
             QMessageBox.critical(self, "Navigation Error", f"Failed to navigate: {e}")
             return False
     
     # Navigation Workflow Methods (PRD Section 5.1.7)
+    
+    def show_moving_overlay(self):
+        """Show a small overlay window over the Go button in Bluestacks emulator window as specified in PRD section 3.3.3"""
+        try:
+            import win32gui
+            import win32con
+            import win32api
+        except ImportError:
+            print("pywin32 is required for overlay functionality. Please install with 'pip install pywin32'.")
+            return None
+
+        try:
+            print("=== OVERLAY DEBUG: Starting overlay creation ===")
+
+            # Find Bluestacks window by title
+            hwnd = win32gui.FindWindow(None, "Main")
+            if hwnd == 0:
+                print("OVERLAY DEBUG: Bluestacks window not found (title 'Main')")
+                return None
+
+            # Get window rect (absolute coordinates)
+            left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+            em_width = right - left
+            em_height = bottom - top
+            print(f"OVERLAY DEBUG: BlueStacks window found - Handle: {hwnd}")
+            print(f"OVERLAY DEBUG: BlueStacks absolute coordinates: Left={left}, Top={top}, Right={right}, Bottom={bottom}")
+            print(f"OVERLAY DEBUG: BlueStacks window size: {em_width}x{em_height}")
+
+            # Get NavGo button relative coordinates
+            if 'NavGo' not in self.location_presets:
+                print("OVERLAY DEBUG: NavGo preset not found in location_presets")
+                print(f"OVERLAY DEBUG: Available presets: {list(self.location_presets.keys())}")
+                return None
+
+            preset = self.location_presets['NavGo']
+            print(f"OVERLAY DEBUG: NavGo preset found: x_loc={preset.x_loc}, y_loc={preset.y_loc}, x_dest={preset.x_dest}, y_dest={preset.y_dest}")
+
+            # Calculate pixel coordinates for overlay
+            screen_width, screen_height = self.get_evony_screen_dimensions()
+            print(f"OVERLAY DEBUG: Evony screen dimensions: {screen_width}x{screen_height}")
+
+            x1 = int(preset.x_loc * screen_width)
+            y1 = int(preset.y_loc * screen_height)
+            x2 = int(preset.x_dest * screen_width)
+            y2 = int(preset.y_dest * screen_height)
+            print(f"OVERLAY DEBUG: NavGo button pixel coordinates: x1={x1}, y1={y1}, x2={x2}, y2={y2}")
+
+            overlay_x = left + min(x1, x2) + 2 # +2 for left edge pixel
+            overlay_y = top + min(y1, y2) + 60  # +60 for title bar offset
+            overlay_w = abs(x2 - x1)
+            overlay_h = abs(y2 - y1)
+            print(f"OVERLAY DEBUG: Overlay absolute coordinates: X={overlay_x}, Y={overlay_y}, Width={overlay_w}, Height={overlay_h}")
+
+            # Create overlay window
+            print("OVERLAY DEBUG: Creating overlay widget...")
+            self.moving_overlay = ColoredRect("MOVING...", QColor("#222"))
+            self.moving_overlay.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+            self.moving_overlay.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+            self.moving_overlay.resize(max(overlay_w, 80), max(overlay_h, 32))
+            self.moving_overlay.move(overlay_x, overlay_y)
+            self.moving_overlay.show()
+            QApplication.processEvents()
+            print("OVERLAY DEBUG: Overlay widget created and shown successfully")
+            return self.moving_overlay
+
+        except Exception as e:
+            print(f"OVERLAY DEBUG: Error showing moving overlay: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def hide_moving_overlay(self):
+        """Remove the moving overlay window after navigation completes"""
+        try:
+            print("OVERLAY DEBUG: Attempting to hide overlay...")
+            if hasattr(self, 'moving_overlay') and self.moving_overlay:
+                print("OVERLAY DEBUG: Overlay widget found, hiding and deleting...")
+                self.moving_overlay.hide()
+                self.moving_overlay.deleteLater()
+                self.moving_overlay = None
+                QApplication.processEvents()
+                print("OVERLAY DEBUG: Overlay successfully hidden and cleaned up")
+            else:
+                print("OVERLAY DEBUG: No overlay widget found to hide")
+        except Exception as e:
+            print(f"OVERLAY DEBUG: Error hiding moving overlay: {e}")
+            import traceback
+            traceback.print_exc()
     
     def return_home(self) -> bool:
         """Navigate back to user's home location as specified in PRD"""
@@ -1422,8 +1689,8 @@ class iScoutToolApp(QMainWindow):
                 QMessageBox.warning(self, "Invalid Server", "Please set enemy server number")
                 return
             
-            # Use middle of map as default coordinates
-            if self.navigate_to_coordinates(598, 600, enemy_server):
+            # Use (10, 10) as default coordinates
+            if self.navigate_to_coordinates(10, 10, enemy_server):
                 self.start_timer(300)  # Start bubble timer (only Go Enemy starts timer)
                 print("Navigated to enemy server. Timer started.")
                 return
@@ -1585,48 +1852,14 @@ class iScoutToolApp(QMainWindow):
             # Stop timer
             if self.timer_thread.running:
                 self.stop_timer()
-            
+
             # Save configuration
             self.save_config()
-            
+
             print("Application closing...")
-            event.accept()
-            
         except Exception as e:
             print(f"Error during close: {e}")
-            event.accept()
-
-    def on_got_it_checkbox_changed(self, row: int, checked: bool):
-        """Update completed status for the target at the given row and refresh target count."""
-        if 0 <= row < len(self.targets):
-            self.targets[row].completed = checked
-            self.update_target_count()
-
-class ColoredRect(QtWidgets.QWidget):
-
-    # how to use
-    # w = ColoredRect("Moving...", QColor("#0078D4"))
-    # w.move(100, 200)  # x=100, y=200
-    # w.show()
-    def __init__(self, text, color=QColor("#00d4ff")):
-
-        super().__init__()
-        self.text = text
-        self.color = color
-        self.resize(200, 100)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.setBrush(self.color)
-        painter.drawRect(self.rect())
-        painter.setFont(QFont("Consolas", 16, QFont.Bold))
-        painter.setPen(QColor("white"))
-        painter.drawText(self.rect(), 
-                         QtCore.Qt.AlignCenter, 
-                         self.text)
-        
-
-
+        event.accept()
 
 # Ensure entry point is at the end of the file
 if __name__ == "__main__":
