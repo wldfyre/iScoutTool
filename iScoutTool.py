@@ -5,7 +5,7 @@ Main application module implementing the requirements from PRD_iScoutTool.md
 
 Author: Generated from PRD specifications
 Date: October 1, 2025
-Version: 1.0.0
+Version: 1.0.2
 """
 
 import sys
@@ -102,7 +102,7 @@ class ColoredRect(QtWidgets.QWidget):
         super().__init__()
         self.text = text
         self.color = color
-        self.resize(200, 100)
+        self.resize(200, 200)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -153,7 +153,7 @@ class iScoutToolApp(QMainWindow):
                 self.mainSplitter.setSizes([110, 330])
             
             # Set window properties
-            self.setWindowTitle("iScoutTool - Evony Automation v1.0.0")
+            self.setWindowTitle("iScoutTool - Evony Automation v1.0.2")
             
             # Call modern interface setup methods (if available)
             if hasattr(self, 'setup_modern_interface'):
@@ -184,9 +184,19 @@ class iScoutToolApp(QMainWindow):
 
     # Configuration Management Methods (PRD Section 5.1.3)
     
+    def get_config_file_path(self):
+        """Get the correct path for the config file (works for both script and executable)"""
+        # When running as PyInstaller bundle, use the executable directory
+        if getattr(sys, 'frozen', False):
+            # Running as PyInstaller bundle
+            return os.path.join(os.path.dirname(sys.executable), 'iScoutTool.cfg')
+        else:
+            # Running as script
+            return os.path.join(os.path.dirname(__file__), 'iScoutTool.cfg')
+    
     def load_config(self):
         """Load configuration from iScoutTool.cfg file as specified in PRD"""
-        config_file = os.path.join(os.path.dirname(__file__), 'iScoutTool.cfg')
+        config_file = self.get_config_file_path()
         try:
             if os.path.exists(config_file):
                 with open(config_file, 'r') as f:
@@ -218,7 +228,7 @@ class iScoutToolApp(QMainWindow):
     
     def save_config(self):
         """Save current configuration to iScoutTool.cfg file as specified in PRD"""
-        config_file = os.path.join(os.path.dirname(__file__), 'iScoutTool.cfg')
+        config_file = self.get_config_file_path()
         try:
             # Get values from UI fields
             home_server = int(self.intHomeServer.text() or "0")

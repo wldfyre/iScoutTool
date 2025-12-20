@@ -5,5 +5,5 @@
     <navigation name="NavServer" xLoc="0.278" yLoc="0.445" xDest="0.859" yDest="0.492" ClickAndDrag = "false"/>
     <navigation name="NavX" xLoc="0.203" yLoc="0.518" xDest="0.481" yDest="0.567" ClickAndDrag = "false"/>
     <navigation name="NavY" xLoc="0.583" yLoc="0.519" xDest="0.86" yDest="0.57" ClickAndDrag = "false"/>
-    <navigation name="NavGo" xLoc="0.317" yLoc="0.594" xDest="0.683" yDest="0.648" ClickAndDrag = "false"/>
+    <navigation name="NavGo" xLoc="0.317" yLoc="0.594" xDest="0.75" yDest="0.698" ClickAndDrag = "false"/>
 </EvonyClickLocations>

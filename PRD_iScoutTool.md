@@ -361,7 +361,7 @@ For now, it will
 def __init__(self):
     """Initialize main application with modern UI"""
     # Load iScoutToolModern.ui file using uic.loadUi()
-    # Set window title: "iScoutTool - Evony Automation v1.0.0"
+    # Set window title: "iScoutTool - Evony Automation v1.0.2"
     # Set initial splitter sizes: [110, 330] (Data Input compact, Scout Targets expanded)
     # Call setup_modern_interface() to configure UI elements
     # Call configure_splitter_layout() to set optimal proportions  
